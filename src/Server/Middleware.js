@@ -8,8 +8,10 @@ export default {
 	},
 
 	wanCheckUser(req, res, next) {
-		if (req.user === Number(req.params.userId)) {
+		if (req.user.userId === Number(req.params.userId)) {
 			next();
+		} else if (req.params.userId === 'not-logged') {
+			res.status(401).send(`${process.env.API_HOME}login`);
 		} else {
 			res.status(401).send(`${process.env.CLIENT_HOME}${req.user}`)
 		}

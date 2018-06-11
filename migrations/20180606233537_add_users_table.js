@@ -4,6 +4,8 @@ exports.up = function (knex, Promise) {
 		table.string('name');
 		table.string('auth_id');
 		table.string('email');
+		table.json('notifications');
+		table.timestamps();
 	})
 };
 

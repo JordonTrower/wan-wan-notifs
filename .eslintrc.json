@@ -28,7 +28,9 @@
 				"specialLink": ["to"]
 			}
 		],
-		"indent": ["error", "tab"],
+		"indent": ["error", "tab", {
+			"SwitchCase": 1
+		}],
 		"no-console": "off",
 		"no-param-reassign": [2, {
 			"props": false

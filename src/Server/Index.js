@@ -6,6 +6,7 @@ import Auth0Strat from 'passport-auth0';
 import knex from 'knex';
 import bodyParser from 'body-parser';
 import _ from 'lodash';
+import axios from 'axios';
 
 import middleware from './Middleware';
 import authRoutes from './Routes/Auth';
@@ -51,7 +52,7 @@ passport.use(new Auth0Strat({
 
 	const db = app.get('db');
 
-	db('users').select('id').where('auth_id', user.user_id).then(dbRes => {
+	db('users').select('id').where('auth_id', user.user_id).first().then(dbRes => {
 		if (_.isEmpty(dbRes)) {
 			db('users')
 				.insert({
@@ -61,14 +62,16 @@ passport.use(new Auth0Strat({
 				})
 				.returning('id')
 				.then((insertRes) => {
-					user.db_id = insertRes;
 
-					done(null, insertRes);
+					done(null, {
+						userId: insertRes[0]
+					});
 				})
 
 		} else {
-
-			done(null, dbRes[0].id);
+			done(null, {
+				userId: dbRes.id
+			});
 		}
 	})
 
@@ -87,23 +90,7 @@ passport.deserializeUser((user, done) => {
 
 app.use('/login', authRoutes)
 
-
 app.use('/user/:userId', [middleware.wanAuthed, middleware.wanCheckUser], userRoutes)
-
-
-// app.get('/user/:userId', [middleware.wanAuthed, middleware.wanCheckUser], (req, res) => {
-// 	const db = app.get('db');
-
-// 	db('users').select().where('id', req.params.userId).then(dbRes => {
-// 		let user = {}
-
-// 		if (!_.isEmpty(dbRes)) {
-// 			[user] = dbRes
-// 		}
-
-// 		res.send(user)
-// 	})
-// })
 
 app.listen(SERVER_PORT, () => {
 	console.log(`Server listening on port ${SERVER_PORT}`);

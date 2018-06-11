@@ -3,62 +3,54 @@ import { Switch, Route } from 'react-router-dom';
 import propTypes from 'prop-types';
 import axios from 'axios';
 import _ from 'lodash';
+import { connect } from 'react-redux';
 import Header from '../Common/Header';
 import Sidebar from '../Common/Sidebar';
 import Dashboard from './Dashboard';
+import ModifyUser from './User/Modify';
 
 class Routes extends Component {
-	constructor() {
-		super();
-
-		this.state = {
-			user: {}
-		};
-
-		this.validateUserExists = this.validateUserExists.bind(this);
-	}
-
-	componentDidMount() {
-		axios
-			.get(`/user/${this.props.match.params.id}/get`)
-			.then(res => {
-				this.setState({ user: res.data });
-			})
-			.catch(err => {
-				if (err.toString().includes('401')) {
-					window.location = err.response.data;
+	componentDidUpdate() {
+		if (!_.isEmpty(this.props.user)) {
+			axios.get(`/user/${this.props.user.id}/check-user`).catch(res => {
+				if (res.toString().includes('401')) {
+					window.location = res.response.data;
 				}
 			});
-	}
-
-	validateUserExists() {
-		return !_.isEmpty(this.state.user);
+		}
 	}
 
 	render() {
 		return (
 			<div>
 				<Header>
-					<h2>Wan-Wan</h2>
+					<h2>Wan-Wan Notifications!</h2>
 					<div />
 				</Header>
-				<div style={{ display: 'flex', width: '100%' }}>
+				<div style={{ display: 'flex', width: '100vw' }}>
 					<Sidebar />
 					<Switch>
-						<Route exact path="/notif/:id" component={Dashboard} />
+						<Route exact path="/notif/" component={Dashboard} />
+						<Route
+							exact
+							path="/notif/mod-user"
+							component={ModifyUser}
+						/>
 					</Switch>
 				</div>
 			</div>
 		);
-
-		// this.validateUserExists() ? <div>aa</div> : <div>bbb</div>;
 	}
 }
 
 Routes.propTypes = {
-	match: propTypes.shape({
-		params: propTypes.shape({ id: propTypes.string })
+	user: propTypes.shape({
+		id: propTypes.number
 	}).isRequired
 };
 
-export default Routes;
+function mapStateToProps(state) {
+	return { user: state.user };
+}
+
+export default connect(mapStateToProps)(Routes);

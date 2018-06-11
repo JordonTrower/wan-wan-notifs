@@ -8,18 +8,16 @@ const router = express.Router({
 
 router.get('/get', (req, res) => {
 	const db = req.app.get('db');
-	let user = {}
-	db('users').select().where('id', req.params.userId).then(dbRes => {
+	db('users').select().first().where('id', req.params.userId).then(dbRes => {
+		res.send(dbRes)
 
-		if (!_.isEmpty(dbRes)) {
-			[user] = dbRes
-		}
-
-		res.send(user)
-
-	}).catch(() => {
-		res.send(user);
+	}).catch(dbErr => {
+		console.log(dbErr);
+		res.send({});
 	})
 })
 
+router.get('/check-user', (req, res) => {
+	res.status(200).send('Correct');
+})
 export default router;
