@@ -98,5 +98,5 @@ app.use('/user/:userId', [middleware.wanAuthed, middleware.wanCheckUser], userRo
 app.listen(SERVER_PORT, () => {
 	console.log(`Server listening on port ${SERVER_PORT}`);
 
-	setInterval(intervals.getTwitter, 15 * 60 * 1000, app)
+	setInterval(intervals.getTwitter, 15 * 60 * 1000, app) // run the get twitter every 15 minutes
 });

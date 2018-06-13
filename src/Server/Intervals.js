@@ -14,6 +14,13 @@ const transporter = nodemailer.createTransport({
 	}
 });
 
+/**
+ * 
+ * @param {*} db knex connection to db
+ * @param {*} site what site to get posts from
+ * 
+ * set up the reused query for getting all the users and their related tables to check for new notifications
+ */
 function getTables(db, site) {
 	return db('users')
 		.join('userSubscriptions', 'userSubscriptions.user_id', 'users.id')
@@ -27,6 +34,16 @@ function getTables(db, site) {
 			'userNotifications.notifications', 'posts.updated_at')
 }
 
+
+/**
+ * 
+ * @param {*} db database
+ * @param {*} site what site to look at
+ * @param {*} userId what the current userId is to update
+ * @param {*} toUpload entire list of new notifications
+ * 
+ * Updates the DB list of a users posts
+ */
 function updatePosts(db, site, userId, toUpload) {
 
 	const currentDate = new Date();
@@ -64,6 +81,15 @@ function updatePosts(db, site, userId, toUpload) {
 }
 
 export default {
+
+	/**
+	 * 
+	 * @param {*} app express app, to get the knex connection
+	 * 
+	 * goes through every user that has a twitter subscription
+	 * and checks for new posts to users they are subscribed to
+	 * then adds it to the posts db and sends them an email
+	 */
 	getTwitter(app) {
 
 		const db = app.get('db');
@@ -84,19 +110,21 @@ export default {
 				if (_.isNil(user.updated_at) || lastUpdated.unix() <= lastCheck.unix()) {
 					user.subscriptions.forEach(sub => {
 
-						promises.push(
-							axios({
-								method: 'get',
-								url: `https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=${sub.url}&count=25?exclude_replies=true`,
-								headers: {
-									Accept: '*/*',
-									Authorization: `Bearer ${process.env.TWITTER_BEARER}`,
-									Connection: 'close',
-									'User-Agent': 'node-twitter/1.7.1'
-								}
-							})
-						)
+						if (sub.site === 'twitter') {
 
+							promises.push(
+								axios({
+									method: 'get',
+									url: `https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=${sub.url}&count=25?exclude_replies=true`,
+									headers: {
+										Accept: '*/*',
+										Authorization: `Bearer ${process.env.TWITTER_BEARER}`,
+										Connection: 'close',
+										'User-Agent': 'node-twitter/1.7.1'
+									}
+								})
+							)
+						}
 					})
 				}
 
