@@ -16,7 +16,6 @@ export default {
 	`,
 
 	btn: css `
-		height: 40px;
 		border: 1px solid transparent;
 		font-weight: 400;
 		font-size: 1rem;
@@ -28,6 +27,18 @@ export default {
 		color: #fff;
 		background-color: #007bff;
 		border-color: #007bff;
+	`,
+
+	btnDanger: css `
+		color: #fff;
+		background-color: #C82333;
+		border-color: #C82333;
+	`,
+
+	btnSuccess: css `
+		color: #fff;
+		background-color: #218838;
+		border-color: #218838;
 	`,
 
 	sm: css `

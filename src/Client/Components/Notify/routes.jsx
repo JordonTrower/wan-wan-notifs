@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Link } from 'react-router-dom';
 import propTypes from 'prop-types';
 import axios from 'axios';
 import _ from 'lodash';
@@ -24,8 +24,17 @@ class Routes extends Component {
 		return (
 			<div>
 				<Header>
-					<h2>Wan-Wan Notifications!</h2>
-					<div />
+					<Link to="/notif/">
+						<h2>Wan-Wan Notifications!</h2>
+					</Link>
+					<Link to="/notif/mod-user" className="pfp">
+						<img
+							width="75px"
+							height="75px"
+							src={this.props.user.picture}
+							alt="Profile"
+						/>
+					</Link>
 				</Header>
 				<div style={{ display: 'flex', width: '100vw' }}>
 					<Sidebar />
@@ -45,7 +54,8 @@ class Routes extends Component {
 
 Routes.propTypes = {
 	user: propTypes.shape({
-		id: propTypes.number
+		id: propTypes.number,
+		picture: propTypes.string
 	}).isRequired
 };
 

@@ -1,21 +1,25 @@
 import express from 'express';
 import _ from 'lodash'
+import usersController from './Controllers/User'
 
 
 const router = express.Router({
 	mergeParams: true
 });
 
-router.get('/get', (req, res) => {
-	const db = req.app.get('db');
-	db('users').select().first().where('id', req.params.userId).then(dbRes => {
-		res.send(dbRes)
+router.get('/get', usersController.getUser)
 
-	}).catch(dbErr => {
-		console.log(dbErr);
-		res.send({});
-	})
-})
+router.get('/get-subs', usersController.getSubs)
+
+router.get('/get-notifs', usersController.getNotifs)
+
+router.get('/get-posts', usersController.getPosts)
+
+router.post('/save-subs', usersController.saveSubs)
+
+router.post('/save-notifs', usersController.saveNotif)
+
+router.delete('/delete-account', usersController.deleteAccount)
 
 router.get('/check-user', (req, res) => {
 	res.status(200).send('Correct');

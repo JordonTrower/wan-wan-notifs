@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import propTypes from 'prop-types';
 
 const Block = styled.div`
 	width: 350px;
@@ -23,11 +24,25 @@ const Block = styled.div`
 		background: #484848;
 		border-radius: 10px;
 		color: white;
+		> * {
+			padding-right: 10px;
+			padding-left: 10px;
+		}
 	}
 `;
 
-export default () => (
+const BlockComp = props => (
 	<Block>
-		<div>Lorem</div>
+		<div>
+			<p>{props.post.content}</p>
+		</div>
 	</Block>
 );
+
+export default BlockComp;
+
+BlockComp.propTypes = {
+	post: propTypes.shape({
+		content: propTypes.string
+	}).isRequired
+};

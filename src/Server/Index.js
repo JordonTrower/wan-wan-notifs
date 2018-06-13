@@ -6,11 +6,11 @@ import Auth0Strat from 'passport-auth0';
 import knex from 'knex';
 import bodyParser from 'body-parser';
 import _ from 'lodash';
-import axios from 'axios';
 
 import middleware from './Middleware';
 import authRoutes from './Routes/Auth';
 import userRoutes from './Routes/Users';
+import intervals from './Intervals';
 
 const app = server();
 
@@ -54,11 +54,16 @@ passport.use(new Auth0Strat({
 
 	db('users').select('id').where('auth_id', user.user_id).first().then(dbRes => {
 		if (_.isEmpty(dbRes)) {
+			const currentTime = new Date();
 			db('users')
 				.insert({
 					name: user.nickname,
 					auth_id: user.user_id,
-					email: user.emails ? user.emails[0].value : ''
+					email: user.emails ? user.emails[0].value : '',
+					picture: user.picture || '',
+					updated_at: currentTime.toISOString(),
+					created_at: currentTime.toISOString()
+
 				})
 				.returning('id')
 				.then((insertRes) => {
@@ -82,10 +87,8 @@ passport.serializeUser((user, done) => {
 })
 
 passport.deserializeUser((user, done) => {
-
 	done(null, user)
 })
-
 
 
 app.use('/login', authRoutes)
@@ -94,4 +97,6 @@ app.use('/user/:userId', [middleware.wanAuthed, middleware.wanCheckUser], userRo
 
 app.listen(SERVER_PORT, () => {
 	console.log(`Server listening on port ${SERVER_PORT}`);
+
+	setInterval(intervals.getTwitter, 15 * 60 * 1000, app)
 });

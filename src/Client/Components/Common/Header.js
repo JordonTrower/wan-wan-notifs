@@ -10,10 +10,12 @@ export default styled.div `
 	justify-content: space-between;
 	align-items: center;
 	background: #232F3E;
+	> a.pfp {
+		margin-right: 25px
+	} 
 	> a.button {
 		border: 2px black solid;
 		background: #37475A;
-		text-decoration: none;
 		color: white;
 		display: flex;
 		justify-content: space-around;
@@ -26,8 +28,10 @@ export default styled.div `
 			background: #131a22;
 		}
 	}
-	> h2 {
+	> a {
+		text-decoration: none;
 		color: white;
 		padding-left: 25px;
 	}
+
 `;

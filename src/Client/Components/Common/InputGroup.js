@@ -29,6 +29,7 @@ export default styled.div `
 
 		@media (max-width: 1250px) {
 			${commonCSS.col10};
+
 		}
 		
 		${commonCSS.row};
@@ -36,7 +37,6 @@ export default styled.div `
 		height: 13px;
 		order: 1;
 		border: #CED4DA solid 1px;
-		border-radius: 0px 7px 7px 0
 	}
 
 	> div.inputGroupPrependContainer {
@@ -57,5 +57,24 @@ export default styled.div `
 		}
 	}
 
-	
+	> div.inputGroupAppendContainer {
+		order: 2;
+		${commonCSS.col2};
+		${commonCSS.row};
+		justify-content: flex-start;
+
+		> .inputGroupAppend {
+			background: #D73040;
+			color: #fff;
+			width: 50px;
+		}
+
+		.inputGroupAppend:nth-last-child(1) {
+			border-radius: 0 7px 7px 0;
+		}
+
+		> button:hover {
+			background: #f3a847;
+		}
+	}
 `;

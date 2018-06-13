@@ -37,6 +37,8 @@
     "jest": "20.0.4",
     "knex": "^0.14.6",
     "lodash": "^4.17.10",
+    "moment": "^2.22.2",
+    "nodemailer": "^4.6.6",
     "nodemon": "^1.17.5",
     "object-assign": "4.1.1",
     "passport": "^0.4.0",
