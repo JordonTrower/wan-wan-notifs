@@ -95,8 +95,25 @@ app.use('/login', authRoutes)
 
 app.use('/user/:userId', [middleware.wanAuthed, middleware.wanCheckUser], userRoutes)
 
+app.get('*', (req, res) => {
+	res.redirect(`${process.env.API_HOME}login`)
+})
+
 app.listen(SERVER_PORT, () => {
 	console.log(`Server listening on port ${SERVER_PORT}`);
 
-	setInterval(intervals.getTwitter, 15 * 60 * 1000, app) // run the get twitter every 15 minutes
+	const requestsMade = {
+		emails: 0,
+		twitterGet: 1500,
+		twitterPost: 2400,
+	};
+
+	intervals.getTwitter(app, requestsMade)
+
+	setInterval(intervals.getTwitter, 5 * 60 * 1000, app, requestsMade) // run the get twitter every 15 minutes
+
+	setInterval(intervals.resetEmails, 24 * 60 * 60 * 1000, requestsMade) // run the reset email every day
+
+	setInterval(intervals.resetTwitterPosts, 24 * 60 * 60 * 1000, requestsMade) // run the get twitter every 15 minutes
+
 });

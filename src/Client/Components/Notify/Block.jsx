@@ -52,7 +52,8 @@ const addLink = content => {
 	const split = content.split('https://');
 
 	if (typeof split[1] === 'string') {
-		return <a href={`https://${split[1]}`}>Image Link </a>;
+		const url = split[1].replace(/(\r\n|\n|\r)/gm, ' ').split(' ')[0];
+		return <a href={`https://${url}`}>Image Link </a>;
 	}
 	return '';
 };

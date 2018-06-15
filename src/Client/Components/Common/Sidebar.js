@@ -10,5 +10,13 @@ export default styled.div `
 	top: 75px;
 	left: 0;
 	background: #232F3E;
+	display: flex;
+	flex-direction: column;
+	> a {
+		padding-top: 35px;
+		padding-left: 25px;
+		text-decoration: underline;
+		color: white;
+	}
 
 `

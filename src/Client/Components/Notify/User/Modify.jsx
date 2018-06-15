@@ -337,7 +337,7 @@ class Modify extends Component {
 									>
 										<option value="">Site Name</option>
 										<option value="email">Email</option>
-										<option value="text">Text</option>
+										<option value="twitter">Twitter</option>
 									</select>
 								</div>
 

@@ -13,7 +13,7 @@ export default {
 		} else if (req.params.userId === 'not-logged') {
 			res.status(401).send(`${process.env.API_HOME}login`);
 		} else {
-			res.status(401).send(`${process.env.CLIENT_HOME}${req.user}`)
+			res.status(401).send(`${process.env.CLIENT_HOME}`)
 		}
 	}
 }

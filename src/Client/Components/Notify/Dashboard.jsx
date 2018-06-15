@@ -26,7 +26,8 @@ class Dashboard extends Component {
 		super();
 
 		this.state = {
-			posts: []
+			posts: [],
+			checked: false
 		};
 	}
 
@@ -34,22 +35,47 @@ class Dashboard extends Component {
 		this.getInfo();
 	}
 
-	componentDidUpdate() {
-		this.getInfo();
+	componentDidUpdate(prevProps) {
+		if (
+			(_.isNil(prevProps.match.params.site) &&
+				!_.isNil(this.props.match.params.site)) ||
+			prevProps.match.params.site !== this.props.match.params.site
+		) {
+			this.getInfo(true);
+		} else {
+			this.getInfo();
+		}
 	}
 
-	getInfo() {
+	getInfo(newRoute = false) {
 		if (
-			_.isEmpty(this.state.posts) &&
-			this.props.userId !== null &&
-			!this.state.checked
+			(_.isEmpty(this.state.posts) &&
+				this.props.userId !== null &&
+				!this.state.checked) ||
+			newRoute
 		) {
-			axios.get(`/user/${this.props.userId}/get-posts`).then(res => {
-				this.setState({
-					posts: res.data !== '' ? res.data.posts : [],
-					checked: true
+			axios
+				.get(
+					`/user/${this.props.userId}/get-posts?site=${this.props
+						.match.params.site || ''}`
+				)
+				.then(res => {
+					if (res.data !== '') {
+						this.setState({
+							posts: _.orderBy(
+								res.data.posts,
+								['posted_at'],
+								['desc']
+							),
+							checked: true
+						});
+					} else {
+						this.setState({
+							posts: [],
+							checked: true
+						});
+					}
 				});
-			});
 		}
 	}
 
@@ -58,7 +84,7 @@ class Dashboard extends Component {
 			<Body>
 				<div>
 					{this.state.posts.map(post => (
-						<Block key={post.id} post={post} />
+						<Block key={`${post.id}`} post={post} />
 					))}
 				</div>
 			</Body>
@@ -67,7 +93,12 @@ class Dashboard extends Component {
 }
 
 Dashboard.propTypes = {
-	userId: propTypes.number
+	userId: propTypes.number,
+	match: propTypes.shape({
+		params: propTypes.shape({
+			site: propTypes.string
+		})
+	}).isRequired
 };
 
 Dashboard.defaultProps = {

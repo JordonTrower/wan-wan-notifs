@@ -1,6 +1,5 @@
 import express from 'express';
-import _ from 'lodash'
-import usersController from './Controllers/User'
+import usersController from './Controllers/UsersController'
 
 
 const router = express.Router({
@@ -15,6 +14,8 @@ router.get('/get-notifs', usersController.getNotifs)
 
 router.get('/get-posts', usersController.getPosts)
 
+router.get('/get-sites', usersController.getSites)
+
 router.post('/save-subs', usersController.saveSubs)
 
 router.post('/save-notifs', usersController.saveNotif)
@@ -24,4 +25,5 @@ router.delete('/delete-account', usersController.deleteAccount)
 router.get('/check-user', (req, res) => {
 	res.status(200).send('Correct');
 })
+
 export default router;
