@@ -2,7 +2,6 @@ import nodemailer from 'nodemailer';
 import moment from 'moment'
 import axios from 'axios';
 import _ from 'lodash'
-import cryptoJs from 'crypto-js/';
 import 'dotenv/config'
 import TwitterConnection from './Classes/Twitter'
 
@@ -170,11 +169,11 @@ function sendToTwitter(promiseData, siteName, userNotifs, requestsMade) {
 
 			},
 			(() => {
-				console.log('ayy')
+				requestsMade.twitterGet -= 1
 			})
 		)
 
-		requestsMade.twitterGet -= 1
+
 	}
 }
 
