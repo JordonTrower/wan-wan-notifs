@@ -1,13 +1,16 @@
 import axios from 'axios';
 import _ from 'lodash';
+import io from 'socket.io-client';
 
 const initalState = {
 	user: {},
-	sites: []
+	sites: [],
+	socket: {},
 };
 
 const GET_USER_INFO = 'GET_USER_INFO';
 const GET_USER_SITES = 'GET_USER_SITES'
+const GET_SOCKET_CONNECTION = 'GET_SOCKET_CONNETION'
 
 export function getUserInfo() {
 	const userInfo = axios.get('/login/is-logged-in').then(res => {
@@ -46,6 +49,18 @@ export function getUserSites(userId) {
 	}
 }
 
+export function getSocketConnection(userId) {
+	const s = io('http://localhost:3004', {
+		query: `user=${userId}`
+	});
+
+	return {
+		type: GET_SOCKET_CONNECTION,
+		payload: s
+	}
+
+}
+
 export default function reducer(state = initalState, action) {
 	switch (action.type) {
 		case `${GET_USER_INFO  }_FULFILLED`:
@@ -57,7 +72,10 @@ export default function reducer(state = initalState, action) {
 			return Object.assign({}, state, {
 				sites: action.payload
 			})
-
+		case GET_SOCKET_CONNECTION:
+			return Object.assign({}, state, {
+				socket: action.payload
+			})
 		default:
 			return state;
 	}

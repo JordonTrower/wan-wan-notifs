@@ -53,9 +53,18 @@ const addLink = content => {
 
 	if (typeof split[1] === 'string') {
 		const url = split[1].replace(/(\r\n|\n|\r)/gm, ' ').split(' ')[0];
-		return <a href={`https://${url}`}>Image Link </a>;
+		return <a href={`https://${url}`}>Post Link</a>;
 	}
 	return '';
+};
+
+const removeLink = content => {
+	const split = content.split('https://');
+
+	if (typeof split[1] === 'string') {
+		return split[0];
+	}
+	return content;
 };
 
 const BlockComp = props => (
@@ -71,7 +80,7 @@ const BlockComp = props => (
 					{addLink(props.post.content)}
 				</div>
 			</div>
-			<p>{props.post.content}</p>
+			<p>{removeLink(props.post.content)}</p>
 		</div>
 	</Block>
 );

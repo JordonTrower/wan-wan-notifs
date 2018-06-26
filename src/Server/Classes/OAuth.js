@@ -9,20 +9,20 @@ import _ from 'lodash';
 
 class TwitterConnection {
 
-	constructor() {
+	constructor(consumer, consumerSecret, access, accessSecret, bearer, baseUrl, requestTokenUrl, accessTokenUrl, callback) {
 
-		this.consumerPublic = process.env.TWITTER_ACCESS
-		this.consumerSecret = process.env.TWITTER_ACCESS_SECRET
-		this.accessToken = process.env.TWITTER_OAUTH_ACCESS
-		this.accessTokenSecret = process.env.TWITTER_OAUTH_ACCESS_SECRET
-		this.bearerToken = process.env.TWITTER_BEARER
+		this.consumerPublic = consumer;
+		this.consumerSecret = consumerSecret;
+		this.accessToken = access;
+		this.accessTokenSecret = accessSecret;
+		this.bearerToken = bearer;
 
-		this.callBack = process.env.CLIENT_HOME
-		this.baseUrl = 'https://api.twitter.com/1.1/'
+		this.callBack = callback;
+		this.baseUrl = this.baseUrl;
 
 		this.oauth = new OAuth(
-			'https://api.twitter.com/oauth/request_token',
-			'https://api.twitter.com/oauth/access_token',
+			requestTokenUrl,
+			accessTokenUrl,
 			this.consumerPublic,
 			this.consumerSecret,
 			'1.0',
@@ -116,9 +116,6 @@ class TwitterConnection {
 		return '';
 	}
 }
-
-
-
 
 
 export default TwitterConnection;

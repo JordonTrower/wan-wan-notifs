@@ -93,15 +93,12 @@ class Modify extends Component {
 			!this.state.checked
 		) {
 			axios.get(`/user/${this.props.userId}/get-subs`).then(res => {
+				console.log(res.data);
 				this.setState({
-					subscriptions:
-						res.data !== '' ? res.data.subscriptions : [],
-					subId:
-						res.data !== ''
-							? res.data.subscriptions[
-								res.data.subscriptions.length - 1
-							  ].id + 1
-							: 0,
+					subscriptions: !_.isEmpty(res.data) ? res.data : [],
+					subId: !_.isEmpty(res.data)
+						? res.data[res.data.length - 1].id + 1
+						: 0,
 					checked: true
 				});
 			});
@@ -270,46 +267,66 @@ class Modify extends Component {
 				<div>
 					<div className="subscriptions">
 						<h1>Subscriptions</h1>
-						{this.state.subscriptions.map(subscription => (
-							<InputGroup
-								key={`input-group-sub-${subscription.id}`}
-							>
-								<div className="inputGroupPrependContainer">
-									<select
-										name="subscription"
-										id={`sub-select-${subscription.id}`}
-										className="inputGroupPrepend"
-										subid={subscription.id}
-										value={subscription.site}
-										onChange={this.updateSubscriptionSite}
-									>
-										<option value="">Site Name</option>
-										<option value="twitter">Twitter</option>
-										<option value="aaa">aaa</option>
-									</select>
-								</div>
+						{this.state.subscriptions
+							.filter(subscription => _.isNil(subscription.type))
+							.map(subscription => (
+								<InputGroup
+									key={`input-group-sub-${subscription.id}`}
+								>
+									<div className="inputGroupPrependContainer">
+										<select
+											name="subscription"
+											id={`sub-select-${subscription.id}`}
+											className="inputGroupPrepend"
+											subid={subscription.id}
+											value={subscription.site}
+											onChange={
+												this.updateSubscriptionSite
+											}
+										>
+											<option value="">Site Name</option>
+											<option value="twitter">
+												Twitter
+											</option>
+											<option value="reddit">Reddit</option>
+										</select>
+									</div>
 
-								<input
-									type="text"
-									id={`sub-text-${subscription.id}`}
-									className="input searchBar"
-									value={subscription.url}
-									onChange={this.updateSubscriptionUrl}
-								/>
+									<input
+										type="text"
+										id={`sub-text-${subscription.id}`}
+										className="input searchBar"
+										value={subscription.url}
+										onChange={this.updateSubscriptionUrl}
+									/>
 
-								<div className="inputGroupAppendContainer">
-									<button
-										className="inputGroupAppend"
-										id={`sub-delete-${subscription.id}`}
-										onClick={this.deleteSubscription}
-									>
-										Delete
-									</button>
-								</div>
-							</InputGroup>
-						))}
+									<div className="inputGroupAppendContainer">
+										<button
+											className="inputGroupAppend"
+											id={`sub-delete-${subscription.id}`}
+											onClick={this.deleteSubscription}
+										>
+											Delete
+										</button>
+									</div>
+								</InputGroup>
+							))}
 
 						<div className="buttons">
+							<Button
+								onClick={() => {
+									console.log(
+										`${
+											process.env.API_URL
+										}login/reddit/auth`
+									);
+									window.location = `${
+										process.env.API_URL
+									}login/reddit/auth`;
+								}}
+							>
+								Add Reddit Account
+							</Button>
 							<Button onClick={this.addSubscription}>
 								Add Subscription
 							</Button>

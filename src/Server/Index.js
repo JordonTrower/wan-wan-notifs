@@ -6,13 +6,25 @@ import Auth0Strat from 'passport-auth0';
 import knex from 'knex';
 import bodyParser from 'body-parser';
 import _ from 'lodash';
+import {
+	OAuth2
+} from 'oauth';
 
 import middleware from './Middleware';
 import authRoutes from './Routes/Auth';
 import userRoutes from './Routes/Users';
 import intervals from './Intervals';
+import socketsController from './Sockets'
+// import OAuth2 from './Classes/OAuth2';
+
 
 const app = server();
+
+const httpServer = require('http').createServer(app);
+
+const socket = socketsController(httpServer)
+
+app.set('socket', socket)
 
 const {
 	SERVER_PORT,
@@ -90,30 +102,46 @@ passport.deserializeUser((user, done) => {
 	done(null, user)
 })
 
-
 app.use('/login', authRoutes)
 
 app.use('/user/:userId', [middleware.wanAuthed, middleware.wanCheckUser], userRoutes)
+
+app.set('redditAuth',
+	new OAuth2(
+		process.env.REDDIT_CLIENT,
+		process.env.REDDIT_CLIENT_SECRET,
+		'https://www.reddit.com/api',
+		'/v1/authorize',
+		'/v1/access_token', {
+			Authorization: `Basic ${Buffer.from(`${process.env.REDDIT_CLIENT}:${process.env.REDDIT_CLIENT_SECRET}`).toString('base64')}`
+		}
+	)
+)
+
 
 app.get('*', (req, res) => {
 	res.redirect(`${process.env.API_HOME}login`)
 })
 
-app.listen(SERVER_PORT, () => {
-	console.log(`Server listening on port ${SERVER_PORT}`);
+app.use('/', (req, res) => {
+	res.send('aaa');
+})
 
-	const requestsMade = {
-		emails: 0,
-		twitterGet: 1500,
-		twitterPost: 2400,
-	};
+httpServer.listen(SERVER_PORT)
 
-	intervals.getTwitter(app, requestsMade)
+const requestsMade = {
+	emails: 0,
+	twitterGet: 1500,
+	twitterPost: 2400,
+	reddit: 60,
+};
 
-	setInterval(intervals.getTwitter, 5 * 60 * 1000, app, requestsMade) // run the get twitter every 15 minutes
+intervals.getTwitter(app, requestsMade)
 
-	setInterval(intervals.resetEmails, 24 * 60 * 60 * 1000, requestsMade) // run the reset email every day
+intervals.getReddit(app, requestsMade, true);
 
-	setInterval(intervals.resetTwitterPosts, 24 * 60 * 60 * 1000, requestsMade) // run the get twitter every 15 minutes
+setInterval(intervals.getTwitter, 5 * 60 * 1000, app, requestsMade) // run the get twitter every 15 minutes
 
-});
+setInterval(intervals.resetEmails, 24 * 60 * 60 * 1000, requestsMade) // run the reset email every day
+
+setInterval(intervals.resetTwitterPosts, 24 * 60 * 60 * 1000, requestsMade) // run the get twitter every 15 minutes

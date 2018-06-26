@@ -60,10 +60,11 @@ class Dashboard extends Component {
 						.match.params.site || ''}`
 				)
 				.then(res => {
-					if (res.data !== '') {
+					if (!_.isEmpty(res.data)) {
+						console.log(res.data);
 						this.setState({
 							posts: _.orderBy(
-								res.data.posts,
+								res.data,
 								['posted_at'],
 								['desc']
 							),

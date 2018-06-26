@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import moment from 'moment'
 
 export default {
 
@@ -23,9 +24,16 @@ export default {
 
 		db('userSubscriptions').where('user_id', req.user.userId)
 			.select('subscriptions')
-			.first()
 			.then(dbRes => {
-				res.status(200).send(dbRes);
+
+				// Flattens the subscriptions down to just info
+				const result = _.flatMap(dbRes, ({
+					subscriptions,
+				}) => _.flatMap(subscriptions, sub =>
+					sub.info
+				))
+
+				res.status(200).send(result);
 			})
 	},
 
@@ -46,9 +54,13 @@ export default {
 		db('posts').where('user_id', req.user.userId)
 			.andWhere('site', 'like', `%${req.query.site}`)
 			.select('posts')
-			.first()
 			.then(dbRes => {
-				res.status(200).send(dbRes);
+
+				const results = _.flatMap(dbRes, (currentItem) => {
+					return currentItem.posts;
+				})
+
+				res.status(200).send(results);
 			})
 	},
 
@@ -72,20 +84,28 @@ export default {
 
 	saveSubs(req, res) {
 		const db = req.app.get('db');
+		const currentTime = moment();
+		const orderedData = _.chain(req.body)
+			.groupBy('site')
+			.toPairs()
+			.map(currentItem =>
+				Object.assign({}, _.zipObject(['site', 'info'], currentItem), {
+					updated_at: currentTime.format('MM-DD-YYYY HH:mm:ss')
+				})
+			).value();
+
 
 		db('userSubscriptions').where('user_id', req.user.userId)
 			.first()
 			.then(dbRes => {
-				const currentTime = new Date();
-
 				if (_.isEmpty(dbRes)) {
 
 					db('userSubscriptions')
 						.insert({
 							user_id: req.user.userId,
-							subscriptions: JSON.stringify(req.body),
-							updated_at: currentTime.toISOString(),
-							created_at: currentTime.toISOString()
+							subscriptions: JSON.stringify(orderedData),
+							updated_at: currentTime.format('MM-DD-YYYY HH:mm:ss'),
+							created_at: currentTime.format('MM-DD-YYYY HH:mm:ss')
 						})
 						.returning()
 						.then(InsertRes =>
@@ -95,8 +115,8 @@ export default {
 
 					db('userSubscriptions').where('user_id', req.user.userId)
 						.update({
-							subscriptions: JSON.stringify(req.body),
-							updated_at: currentTime.toISOString(),
+							subscriptions: JSON.stringify(orderedData),
+							updated_at: currentTime.format('MM-DD-YYYY HH:mm:ss'),
 						})
 						.then(() => {
 
@@ -108,6 +128,7 @@ export default {
 						})
 				}
 			})
+
 	},
 
 	saveNotif(req, res) {
@@ -116,16 +137,15 @@ export default {
 		db('userNotifications').where('user_id', req.user.userId)
 			.first()
 			.then(dbRes => {
-				const currentTime = new Date();
-
+				const currentTime = moment();
 				if (_.isEmpty(dbRes)) {
 
 					db('userNotifications')
 						.insert({
 							user_id: req.user.userId,
 							notifications: JSON.stringify(req.body),
-							updated_at: currentTime.toISOString(),
-							created_at: currentTime.toISOString()
+							updated_at: currentTime.format('MM-DD-YYYY HH:mm:ss'),
+							created_at: currentTime.format('MM-DD-YYYY HH:mm:ss')
 						})
 						.returning()
 						.then(InsertRes => {
@@ -137,7 +157,7 @@ export default {
 						.where('user_id', req.user.userId)
 						.update({
 							notifications: JSON.stringify(req.body),
-							updated_at: currentTime.toISOString(),
+							updated_at: currentTime.format('MM-DD-YYYY HH:mm:ss'),
 						})
 						.then(() => {
 

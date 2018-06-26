@@ -8,7 +8,7 @@ import Header from '../Common/Header';
 import Sidebar from '../Common/Sidebar';
 import Dashboard from './Dashboard';
 import ModifyUser from './User/Modify';
-import { getUserSites } from '../../Redux/reducer';
+import { getUserSites, getSocketConnection } from '../../Redux/reducer';
 
 class Routes extends Component {
 	constructor() {
@@ -28,11 +28,18 @@ class Routes extends Component {
 	componentDidUpdate() {
 		this.getSites();
 		if (!_.isEmpty(this.props.user)) {
-			axios.get(`/user/${this.props.user.id}/check-user`).catch(res => {
-				if (res.toString().includes('401')) {
-					window.location = res.response.data;
-				}
-			});
+			axios
+				.get(`/user/${this.props.user.id}/check-user`)
+				.catch(res => {
+					if (res.toString().includes('401')) {
+						window.location = res.response.data;
+					}
+				})
+				.then(() => {
+					if (_.isEmpty(this.props.socket)) {
+						this.props.getSocketConnection(this.props.user.id);
+					}
+				});
 		}
 	}
 
@@ -43,6 +50,7 @@ class Routes extends Component {
 			!this.state.checked
 		) {
 			this.props.getUserSites(this.props.user.id);
+
 			this.setState({
 				checked: true
 			});
@@ -96,12 +104,16 @@ Routes.propTypes = {
 		id: propTypes.number,
 		picture: propTypes.string
 	}).isRequired,
+	socket: propTypes.shape({}).isRequired,
 	sites: propTypes.arrayOf(propTypes.string).isRequired,
-	getUserSites: propTypes.func.isRequired
+	getUserSites: propTypes.func.isRequired,
+	getSocketConnection: propTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
-	return { user: state.user, sites: state.sites };
+	return state;
 }
 
-export default connect(mapStateToProps, { getUserSites })(Routes);
+export default connect(mapStateToProps, { getUserSites, getSocketConnection })(
+	Routes
+);

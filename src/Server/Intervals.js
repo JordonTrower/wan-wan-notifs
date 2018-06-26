@@ -1,11 +1,36 @@
 import nodemailer from 'nodemailer';
 import moment from 'moment'
 import axios from 'axios';
+import cryptoJS from 'crypto-js';
 import _ from 'lodash'
 import 'dotenv/config'
-import TwitterConnection from './Classes/Twitter'
 
-const Twitter = new TwitterConnection();
+import OauthConnection from './Classes/OAuth'
+import Oauth2Connection from './Classes/OAuth2'
+
+const Twitter = new OauthConnection(
+	process.env.TWITTER_ACCESS,
+	process.env.TWITTER_ACCESS_SECRET,
+	process.env.TWITTER_OAUTH_ACCESS,
+	process.env.TWITTER_OAUTH_ACCESS_SECRET,
+	process.env.TWITTER_BEARER,
+	'https://api.twitter.com/1.1/',
+	'https://api.twitter.com/oauth/request_token',
+	'https://api.twitter.com/oauth/access_token',
+	process.env.CLIENT_HOME,
+);
+
+
+
+
+// const Reddit = new Oauth2Connection(
+// 	process.env.REDDIT_CLIENT,
+// 	process.env.REDDIT_CLIENT_SECRET,
+// 	'https://reddit.com/api/',
+
+// 	'https://www.reddit.com/api/v1/access_token'
+// )
+
 
 const transporter = nodemailer.createTransport({
 	host: 'smtp.gmail.com',
@@ -51,7 +76,7 @@ function getTables(db, site) {
 
 function updatePosts(db, site, userId, toUpload) {
 
-	const currentDate = new Date();
+	const currentDate = moment.utc()
 
 	db('posts').where('user_id', userId).andWhere({
 		site
@@ -63,8 +88,8 @@ function updatePosts(db, site, userId, toUpload) {
 				user_id: userId,
 				posts: JSON.stringify(toUpload),
 				site,
-				updated_at: currentDate.toISOString(),
-				created_at: currentDate.toISOString()
+				updated_at: currentDate.format('MM-DD-YYYY HH:mm:ss'),
+				created_at: currentDate.format('MM-DD-YYYY HH:mm:ss')
 			}).then(() => {
 
 			})
@@ -80,7 +105,7 @@ function updatePosts(db, site, userId, toUpload) {
 				site
 			}).update({
 				posts: JSON.stringify(uniqUpload),
-				updated_at: currentDate.toISOString(),
+				updated_at: currentDate.format('MM-DD-YYYY HH:mm:ss'),
 
 			}).then(() => {
 
@@ -137,8 +162,8 @@ function sendMail(promiseData, siteName, userNotifs, emailsSent) {
 		if (emailsSent.count + emailTo.length <= 95) {
 			transporter.sendMail(message, (error) => {
 
-				if (error) {
-					return console.log(error);
+				if (!_.isNil(error)) {
+					return console.log(error, "aa");
 				}
 
 				emailsSent.emails += emailTo.count
@@ -153,17 +178,16 @@ function sendMail(promiseData, siteName, userNotifs, emailsSent) {
 
 function sendToTwitter(promiseData, siteName, userNotifs, requestsMade) {
 
-
 	const tweetToArray = userNotifs.filter(notif => notif.site === 'twitter').map(notif =>
 		notif.url
 	)
-
+	console.log(tweetToArray);
 	if (!_.isEmpty(tweetToArray)) {
 		const recievers = `@${tweetToArray.join(' @')}`
 
 		Twitter.post(
 			'statuses/update', {
-				status: `Hey ${recievers} you have new ${siteName} notifications ${moment().toISOString()}`
+				status: `Hey ${recievers} you have new ${siteName} notifications ${moment().format('MM-DD-YYYY HH:mm:ss')}`
 			}, (err) => {
 				console.log(err);
 
@@ -172,8 +196,6 @@ function sendToTwitter(promiseData, siteName, userNotifs, requestsMade) {
 				requestsMade.twitterGet -= 1
 			})
 		)
-
-
 	}
 }
 
@@ -221,7 +243,12 @@ export default {
 		const query = getTables(db, 'twitter');
 
 		query.then(users => {
+
 			users.forEach(user => {
+
+				user.subscriptions = _.flatMap(user.subscriptions.filter(sub => sub.site === 'twitter'), (currentItem) => {
+					return currentItem.info;
+				})
 
 				const promises = [];
 
@@ -239,7 +266,7 @@ export default {
 										Accept: '*/*',
 										Authorization: `Bearer ${process.env.TWITTER_BEARER}`,
 										Connection: 'close',
-										'User-Agent': 'node-twitter/1.7.1'
+										'User-Agent': 'Wan-Wan-Notif /1.7.1'
 									}
 								})
 							)
@@ -251,7 +278,7 @@ export default {
 					results.forEach((response) => {
 						response.data.forEach(data => {
 
-							const postDate = moment(new Date(data.created_at));
+							const postDate = moment(new Date(data.created_at))
 
 							requestsMade.twitterGet = response.headers['x-rate-limit-remaining'];
 
@@ -262,8 +289,8 @@ export default {
 									from: data.user.screen_name,
 									site: 'twitter',
 									content: data.text,
-									posted_at: postDate.toISOString(),
-									added_at: moment().toISOString(),
+									posted_at: postDate.format('MM-DD-YYYY HH:mm:ss'),
+									added_at: moment().format('MM-DD-YYYY HH:mm:ss'),
 									id: data.id
 								})
 							}
@@ -283,6 +310,83 @@ export default {
 				})
 			})
 		})
+	},
 
+	getReddit(app, requestsMade, force = false) {
+		const query = getTables(app.get('db'), 'reddit');
+
+		const lastCheck = moment().subtract(1, 'minutes').subtract(15, 'seconds')
+
+		query.then(users => {
+			users.forEach(user => {
+
+				user.subscriptions = _.flatMap(
+					user.subscriptions.filter(sub => sub.site === 'reddit'),
+					(currentItem) => currentItem.info
+				)
+
+				const postData = [];
+
+				const promises = [];
+
+				const lastUpdated = moment(user.updated_at);
+
+				if (_.isNil(user.updated_at) || lastUpdated.unix() <= lastCheck.unix() || force) {
+
+					if (!_.isEmpty(user.subscriptions)) {
+
+						user.subscriptions.forEach(sub => {
+
+							if (sub.site === 'reddit' && requestsMade.reddit >= 5) {
+
+
+								promises.push(
+									axios({
+										method: 'get',
+										url: `https://www.reddit.com/r/${sub.url}/new.json?sort=new`,
+										headers: {
+											Accept: '*/*',
+											Connection: 'close',
+											'User-Agent': 'Wan-Wan-Notif u/Jospook /1.0.0'
+										}
+									})
+								)
+							}
+						})
+
+						axios.all(promises).then(results => {
+							results.forEach(response => {
+								response.data.data.children.forEach(post => {
+									const postDate = moment(post.data.created_utc * 1000); // timestamp is in seconds
+
+									if (_.isNil(user.updated_at) &&
+										postDate.unix() >= moment().subtract(1, 'days').unix() ||
+										postDate.unix() >= lastUpdated.unix()) {
+
+										postData.push({
+											from: post.data.author,
+											site: 'reddit',
+											content: `${post.data.subreddit_name_prefixed} \n ${post.data.title} https://reddit.com${post.data.permalink}`,
+											posted_at: postDate.format('MM-DD-YYYY HH:mm:ss'),
+											added_at: moment().format('MM-DD-YYYY HH:mm:ss'),
+											id: post.data.id
+										})
+									}
+								})
+							})
+
+							if (!_.isEmpty(postData)) {
+								updatePosts(app.get('db'), 'reddit', user.id, postData)
+
+								sendMail(postData, 'reddit', user.notifications, requestsMade)
+
+								sendToTwitter(postData, 'reddit', user.notifications, requestsMade)
+							}
+						})
+
+					}
+				}
+			})
+		})
 	}
 }
