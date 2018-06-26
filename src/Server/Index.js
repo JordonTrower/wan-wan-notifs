@@ -140,8 +140,10 @@ intervals.getTwitter(app, requestsMade)
 
 intervals.getReddit(app, requestsMade, true);
 
-setInterval(intervals.getTwitter, 5 * 60 * 1000, app, requestsMade) // run the get twitter every 15 minutes
+setInterval(intervals.getTwitter, 5 * 60 * 1000, app, requestsMade) // run the get twitter every 5 minutes
+
+setInterval(intervals.getReddit, 1.5 * 60 * 1000, app, requestsMade) // run the get twitter every 15 minutes
 
 setInterval(intervals.resetEmails, 24 * 60 * 60 * 1000, requestsMade) // run the reset email every day
 
-setInterval(intervals.resetTwitterPosts, 24 * 60 * 60 * 1000, requestsMade) // run the get twitter every 15 minutes
+setInterval(intervals.resetTwitterPosts, 24 * 60 * 60 * 1000, requestsMade) // run the reset twitters every day
