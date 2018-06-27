@@ -84,7 +84,7 @@ function updatePosts(db, site, userId, toUpload) {
 			})
 		} else {
 
-			const trimmed = dbSelect.posts.filter(post => moment(post.posted_at).unix() > moment(currentDate).subtract(2, 'days').unix())
+			const trimmed = dbSelect.posts.filter(post => moment(new Date(post.posted_at)).unix() > currentDate.subtract(2, 'days').unix())
 
 			const uniqUpload = _.chain(Object.assign([], toUpload, trimmed))
 				.uniq('id')
@@ -207,7 +207,6 @@ function getPromiseData(user, promises, limitHeader = null, dataToGet, site, req
 		results.forEach((response) => {
 
 			let responseData = null;
-
 			dataToGet.info.split('.').forEach(info => {
 				if (responseData) {
 					responseData = responseData[info]
@@ -215,7 +214,6 @@ function getPromiseData(user, promises, limitHeader = null, dataToGet, site, req
 					responseData = response[info]
 				}
 			})
-
 
 			responseData.forEach(data => {
 
@@ -242,6 +240,7 @@ function getPromiseData(user, promises, limitHeader = null, dataToGet, site, req
 						posted_at: postDate.format('MM-DD-YYYY HH:mm:ss'),
 						added_at: moment().format('MM-DD-YYYY HH:mm:ss'),
 					}
+
 
 					Object.entries(dataToGet).forEach((values) => {
 
@@ -297,8 +296,9 @@ function setPromises(query, site, Authorization, url, requestsMade, lastCheck, l
 			const lastUpdated = moment(user.updated_at);
 
 			if (_.isNil(user.updated_at) || lastUpdated.unix() <= lastCheck.unix() || force) {
+
 				user.subscriptions.forEach(sub => {
-					if (sub.site === site && requestsMade[site] >= 250) {
+					if (sub.site === site && requestsMade[site] >= 20) {
 
 						promises.push(
 							axios({
@@ -317,7 +317,6 @@ function setPromises(query, site, Authorization, url, requestsMade, lastCheck, l
 					}
 				})
 			}
-
 			getPromiseData(user, promises, limitHeader, dataToGet, site, requestsMade, db)
 		})
 	})
@@ -351,7 +350,6 @@ export default {
 		return requestsMade;
 	},
 
-
 	/**
 	 * 
 	 * @param {*} app express app, to get the knex connection
@@ -363,7 +361,7 @@ export default {
 	getTwitter(app, requestsMade) {
 		const db = app.get('db');
 
-		const lastCheck = moment().subtract(15, 'minutes')
+		const lastCheck = moment.utc().subtract(15, 'minutes')
 
 		const query = getTables(db, 'twitter');
 
@@ -459,7 +457,7 @@ export default {
 
 		const query = getTables(app.get('db'), 'reddit');
 
-		const lastCheck = moment().subtract(1, 'minutes').subtract(15, 'seconds')
+		const lastCheck = moment.utc().subtract(1, 'minutes').subtract(15, 'seconds')
 
 		const auth = '';
 
@@ -478,11 +476,10 @@ export default {
 					'data.permalink',
 				]
 			},
-			created_at: 'data.created_utc',
+			created_at: 'data.created',
 			id: 'data.id'
 		}
 
 		setPromises(query, 'reddit', auth, url, requestsMade, lastCheck, rateLimit, dataToGet, app.get('db'), force)
-
 	}
 }
