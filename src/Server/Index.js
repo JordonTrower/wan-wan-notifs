@@ -131,8 +131,7 @@ httpServer.listen(SERVER_PORT)
 
 const requestsMade = {
 	emails: 0,
-	twitterGet: 1500,
-	twitterPost: 2400,
+	twitter: 1500,
 	reddit: 60,
 };
 

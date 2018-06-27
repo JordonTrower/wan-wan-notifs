@@ -6,31 +6,20 @@ import _ from 'lodash'
 import 'dotenv/config'
 
 import OauthConnection from './Classes/OAuth'
-import Oauth2Connection from './Classes/OAuth2'
 
-const Twitter = new OauthConnection(
-	process.env.TWITTER_ACCESS,
-	process.env.TWITTER_ACCESS_SECRET,
-	process.env.TWITTER_OAUTH_ACCESS,
-	process.env.TWITTER_OAUTH_ACCESS_SECRET,
-	process.env.TWITTER_BEARER,
-	'https://api.twitter.com/1.1/',
-	'https://api.twitter.com/oauth/request_token',
-	'https://api.twitter.com/oauth/access_token',
-	process.env.CLIENT_HOME,
-);
+https: // www.ebay.com/itm/Gundam-Build-Fighters-Try-HGBF-056-Chinagguy-China-Kousaka-Mobile-Suit-Kit-/232453563297
 
-
-
-
-// const Reddit = new Oauth2Connection(
-// 	process.env.REDDIT_CLIENT,
-// 	process.env.REDDIT_CLIENT_SECRET,
-// 	'https://reddit.com/api/',
-
-// 	'https://www.reddit.com/api/v1/access_token'
-// )
-
+	const Twitter = new OauthConnection(
+		process.env.TWITTER_ACCESS,
+		process.env.TWITTER_ACCESS_SECRET,
+		process.env.TWITTER_OAUTH_ACCESS,
+		process.env.TWITTER_OAUTH_ACCESS_SECRET,
+		process.env.TWITTER_BEARER,
+		'https://api.twitter.com/1.1/',
+		'https://api.twitter.com/oauth/request_token',
+		'https://api.twitter.com/oauth/access_token',
+		process.env.CLIENT_HOME,
+	);
 
 const transporter = nodemailer.createTransport({
 	host: 'smtp.gmail.com',
@@ -159,11 +148,11 @@ function sendMail(promiseData, siteName, userNotifs, emailsSent) {
 			html
 		}
 
-		if (emailsSent.count + emailTo.length <= 95) {
+		if (emailsSent.emails + emailTo.length <= 95) {
 			transporter.sendMail(message, (error) => {
 
 				if (!_.isNil(error)) {
-					return console.log(error, "aa");
+					return console.log(error);
 				}
 
 				emailsSent.emails += emailTo.count
@@ -181,7 +170,7 @@ function sendToTwitter(promiseData, siteName, userNotifs, requestsMade) {
 	const tweetToArray = userNotifs.filter(notif => notif.site === 'twitter').map(notif =>
 		notif.url
 	)
-	console.log(tweetToArray);
+
 	if (!_.isEmpty(tweetToArray)) {
 		const recievers = `@${tweetToArray.join(' @')}`
 
@@ -189,15 +178,152 @@ function sendToTwitter(promiseData, siteName, userNotifs, requestsMade) {
 			'statuses/update', {
 				status: `Hey ${recievers} you have new ${siteName} notifications ${moment().format('MM-DD-YYYY HH:mm:ss')}`
 			}, (err) => {
-				console.log(err);
-
-			},
-			(() => {
-				requestsMade.twitterGet -= 1
-			})
+				if (err) console.log(err);
+			}, (err) => {
+				if (err) console.log(err);
+			}
 		)
 	}
 }
+
+function resolve(obj, path) {
+	const splitPath = path.split('.');
+	let current = obj;
+
+	while (path.length) {
+
+		if (typeof current !== 'object') return current
+
+		current = current[splitPath.shift()]
+	}
+	return current
+}
+
+function getPromiseData(user, promises, limitHeader = null, dataToGet, site, requestsMade, db) {
+
+	const promiseData = []
+
+	axios.all(promises).then(results => {
+		results.forEach((response) => {
+
+			let responseData = null;
+
+			dataToGet.info.split('.').forEach(info => {
+				if (responseData) {
+					responseData = responseData[info]
+				} else {
+					responseData = response[info]
+				}
+			})
+
+
+			responseData.forEach(data => {
+
+				let time = resolve(data, dataToGet.created_at);
+
+				if (typeof time === 'number' && time.toString().length === 10) {
+					time *= 1000;
+				}
+
+				const postDate = moment(new Date(time))
+
+				if (limitHeader) {
+					requestsMade[site] = response.headers[limitHeader];
+				}
+
+				const lastUpdated = moment(user.updated_at);
+
+				if (_.isNil(user.updated_at) &&
+					postDate.unix() >= moment().subtract(1, 'days').unix() ||
+					postDate.unix() >= lastUpdated.unix()) {
+
+					const pushData = {
+						site,
+						posted_at: postDate.format('MM-DD-YYYY HH:mm:ss'),
+						added_at: moment().format('MM-DD-YYYY HH:mm:ss'),
+					}
+
+					Object.entries(dataToGet).forEach((values) => {
+
+						const key = values[0];
+						const value = values[1];
+
+						if (key !== 'info') {
+							if (typeof value === 'object') {
+
+								const splitString = value.string.split('./'); // ./ is the designated splitter for the content string
+
+								if (splitString.length === value.data.length) {
+									pushData[key] = splitString.reduce((string, curValue, index) => {
+										const toReturn = `${string}${curValue.replace('${}', resolve(data, value.data[index]))}`
+										return toReturn;
+									}, '')
+								} else {
+									pushData[key] = resolve(data, value.data[0])
+								}
+
+							} else {
+								pushData[key] = resolve(data, value)
+							}
+						}
+					})
+
+					promiseData.push(
+						pushData
+					)
+				}
+			})
+		})
+
+		if (!_.isEmpty(promiseData)) {
+
+			updatePosts(db, site, user.id, promiseData)
+
+			sendMail(promiseData, site, user.notifications, requestsMade)
+
+			sendToTwitter(promiseData, site, user.notifications, requestsMade)
+		}
+	})
+}
+
+function setPromises(query, site, Authorization, url, requestsMade, lastCheck, limitHeader, dataToGet, db, force) {
+	query.then(users => {
+		users.forEach(user => {
+
+			user.subscriptions = _.flatMap(user.subscriptions.filter(sub => sub.site === site), (currentItem) => currentItem.info)
+
+			const promises = [];
+
+			const lastUpdated = moment(user.updated_at);
+
+			if (_.isNil(user.updated_at) || lastUpdated.unix() <= lastCheck.unix() || force) {
+				user.subscriptions.forEach(sub => {
+					if (sub.site === site && requestsMade[site] >= 250) {
+
+						promises.push(
+							axios({
+								method: 'get',
+								url: url.replace('${}', sub.url),
+								// url: `https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=${}&count=25?exclude_replies=true`,
+								headers: {
+									Accept: '*/*',
+									Authorization,
+									// Authorization: `Bearer ${process.env.TWITTER_BEARER}`,
+									Connection: 'close',
+									'User-Agent': 'Wan-Wan-Notif /1.7.1'
+								}
+							})
+						)
+					}
+				})
+			}
+
+			getPromiseData(user, promises, limitHeader, dataToGet, site, requestsMade, db)
+		})
+	})
+}
+
+
 
 export default {
 
@@ -225,6 +351,7 @@ export default {
 		return requestsMade;
 	},
 
+
 	/**
 	 * 
 	 * @param {*} app express app, to get the knex connection
@@ -238,155 +365,124 @@ export default {
 
 		const lastCheck = moment().subtract(15, 'minutes')
 
-		const promiseData = [];
-
 		const query = getTables(db, 'twitter');
 
-		query.then(users => {
+		const auth = `Bearer ${process.env.TWITTER_BEARER}`;
 
-			users.forEach(user => {
+		const url = 'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=${}&count=25?exclude_replies=true';
 
-				user.subscriptions = _.flatMap(user.subscriptions.filter(sub => sub.site === 'twitter'), (currentItem) => {
-					return currentItem.info;
-				})
+		const rateLimit = 'x-rate-limit-remaining';
 
-				const promises = [];
+		const dataToGet = {
+			info: 'data',
+			from: 'user.screen_name',
+			content: 'text',
+			created_at: 'created_at',
+			id: 'id'
+		}
 
-				const lastUpdated = moment(user.updated_at);
+		setPromises(query, 'twitter', auth, url, requestsMade, lastCheck, rateLimit, dataToGet, db)
 
-				if (_.isNil(user.updated_at) || lastUpdated.unix() <= lastCheck.unix()) {
-					user.subscriptions.forEach(sub => {
-						if (sub.site === 'twitter' && requestsMade.twitterGet >= 250) {
+		// Old setup below
 
-							promises.push(
-								axios({
-									method: 'get',
-									url: `https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=${sub.url}&count=25?exclude_replies=true`,
-									headers: {
-										Accept: '*/*',
-										Authorization: `Bearer ${process.env.TWITTER_BEARER}`,
-										Connection: 'close',
-										'User-Agent': 'Wan-Wan-Notif /1.7.1'
-									}
-								})
-							)
-						}
-					})
-				}
+		// query.then(users => {
 
-				axios.all(promises).then(results => {
-					results.forEach((response) => {
-						response.data.forEach(data => {
+		// 	users.forEach(user => {
 
-							const postDate = moment(new Date(data.created_at))
+		// 		user.subscriptions = _.flatMap(user.subscriptions.filter(sub => sub.site === 'twitter'), (currentItem) => {
+		// 			return currentItem.info;
+		// 		})
 
-							requestsMade.twitterGet = response.headers['x-rate-limit-remaining'];
+		// 		const promises = [];
 
-							if (_.isNil(user.updated_at) &&
-								postDate.unix() >= moment().subtract(1, 'days').unix() ||
-								postDate.unix() >= lastUpdated.unix()) {
-								promiseData.push({
-									from: data.user.screen_name,
-									site: 'twitter',
-									content: data.text,
-									posted_at: postDate.format('MM-DD-YYYY HH:mm:ss'),
-									added_at: moment().format('MM-DD-YYYY HH:mm:ss'),
-									id: data.id
-								})
-							}
-						})
-					})
+		// 		const lastUpdated = moment(user.updated_at);
 
-					if (!_.isEmpty(promiseData)) {
+		// 		if (_.isNil(user.updated_at) || lastUpdated.unix() <= lastCheck.unix()) {
+		// 			user.subscriptions.forEach(sub => {
+		// 				if (sub.site === 'twitter' && requestsMade[site] >= 250) {
 
-						updatePosts(db, 'twitter', user.id, promiseData)
+		// 					promises.push(
+		// 						axios({
+		// 							method: 'get',
+		// 							url: `https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=${sub.url}&count=25?exclude_replies=true`,
+		// 							headers: {
+		// 								Accept: '*/*',
+		// 								Authorization: `Bearer ${process.env.TWITTER_BEARER}`,
+		// 								Connection: 'close',
+		// 								'User-Agent': 'Wan-Wan-Notif /1.7.1'
+		// 							}
+		// 						})
+		// 					)
+		// 				}
+		// 			})
+		// 		}
 
-						sendMail(promiseData, 'twitter', user.notifications, requestsMade)
+		// 		axios.all(promises).then(results => {
+		// 			results.forEach((response) => {
+		// 				response.data.forEach(data => {
 
-						sendToTwitter(promiseData, 'twitter', user.notifications, requestsMade)
-					}
-				}).catch(err => {
-					console.log(err);
-				})
-			})
-		})
+		// 					const postDate = moment(new Date(data.created_at))
+
+		// 					requestsMade.twitterGet = response.headers['x-rate-limit-remaining'];
+
+		// 					if (_.isNil(user.updated_at) &&
+		// 						postDate.unix() >= moment().subtract(1, 'days').unix() ||
+		// 						postDate.unix() >= lastUpdated.unix()) {
+		// 						promiseData.push({
+		// 							from: data.user.screen_name,
+		// 							site: 'twitter',
+		// 							content: data.text,
+		// 							posted_at: postDate.format('MM-DD-YYYY HH:mm:ss'),
+		// 							added_at: moment().format('MM-DD-YYYY HH:mm:ss'),
+		// 							id: data.id
+		// 						})
+		// 					}
+		// 				})
+		// 			})
+
+		// 			if (!_.isEmpty(promiseData)) {
+
+		// 				updatePosts(db, 'twitter', user.id, promiseData)
+
+		// 				sendMail(promiseData, 'twitter', user.notifications, requestsMade)
+
+		// 				sendToTwitter(promiseData, 'twitter', user.notifications, requestsMade)
+		// 			}
+		// 		}).catch(err => {
+		// 			console.log(err);
+		// 		})
+		// 	})
+		// })
 	},
 
 	getReddit(app, requestsMade, force = false) {
+
 		const query = getTables(app.get('db'), 'reddit');
 
 		const lastCheck = moment().subtract(1, 'minutes').subtract(15, 'seconds')
 
-		query.then(users => {
-			users.forEach(user => {
+		const auth = '';
 
-				user.subscriptions = _.flatMap(
-					user.subscriptions.filter(sub => sub.site === 'reddit'),
-					(currentItem) => currentItem.info
-				)
+		const url = 'https://www.reddit.com/r/${}/new.json?sort=new';
 
-				const postData = [];
+		const rateLimit = 'x-rate-limit-remaining';
 
-				const promises = [];
+		const dataToGet = {
+			info: 'data.data.children',
+			from: 'data.author',
+			content: {
+				string: '${} ./ \n ${} ./ https://reddit.com${}',
+				data: [
+					'data.subreddit_name_prefixed',
+					'data.title',
+					'data.permalink',
+				]
+			},
+			created_at: 'data.created_utc',
+			id: 'data.id'
+		}
 
-				const lastUpdated = moment(user.updated_at);
+		setPromises(query, 'reddit', auth, url, requestsMade, lastCheck, rateLimit, dataToGet, app.get('db'), force)
 
-				if (_.isNil(user.updated_at) || lastUpdated.unix() <= lastCheck.unix() || force) {
-
-					if (!_.isEmpty(user.subscriptions)) {
-
-						user.subscriptions.forEach(sub => {
-
-							if (sub.site === 'reddit' && requestsMade.reddit >= 5) {
-
-
-								promises.push(
-									axios({
-										method: 'get',
-										url: `https://www.reddit.com/r/${sub.url}/new.json?sort=new`,
-										headers: {
-											Accept: '*/*',
-											Connection: 'close',
-											'User-Agent': 'Wan-Wan-Notif u/Jospook /1.0.0'
-										}
-									})
-								)
-							}
-						})
-
-						axios.all(promises).then(results => {
-							results.forEach(response => {
-								response.data.data.children.forEach(post => {
-									const postDate = moment(post.data.created_utc * 1000); // timestamp is in seconds
-
-									if (_.isNil(user.updated_at) &&
-										postDate.unix() >= moment().subtract(1, 'days').unix() ||
-										postDate.unix() >= lastUpdated.unix()) {
-
-										postData.push({
-											from: post.data.author,
-											site: 'reddit',
-											content: `${post.data.subreddit_name_prefixed} \n ${post.data.title} https://reddit.com${post.data.permalink}`,
-											posted_at: postDate.format('MM-DD-YYYY HH:mm:ss'),
-											added_at: moment().format('MM-DD-YYYY HH:mm:ss'),
-											id: post.data.id
-										})
-									}
-								})
-							})
-
-							if (!_.isEmpty(postData)) {
-								updatePosts(app.get('db'), 'reddit', user.id, postData)
-
-								sendMail(postData, 'reddit', user.notifications, requestsMade)
-
-								sendToTwitter(postData, 'reddit', user.notifications, requestsMade)
-							}
-						})
-
-					}
-				}
-			})
-		})
 	}
 }

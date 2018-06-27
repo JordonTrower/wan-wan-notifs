@@ -18,7 +18,7 @@ class TwitterConnection {
 		this.bearerToken = bearer;
 
 		this.callBack = callback;
-		this.baseUrl = this.baseUrl;
+		this.baseUrl = baseUrl;
 
 		this.oauth = new OAuth(
 			requestTokenUrl,
@@ -73,7 +73,7 @@ class TwitterConnection {
 			.replace(/\(/g, "%28")
 			.replace(/\)/g, "%29")
 			.replace(/\*/g, "%2A");
-
+		console.log(encodedUrl);
 		this.oauth.post(encodedUrl, this.accessToken, this.accessTokenSecret, body, 'application/x-www-form-urlencoded', (err, resBody, res) => {
 
 			if (!err && Number(res.status_code) === 200) {
