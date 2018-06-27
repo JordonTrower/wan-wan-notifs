@@ -1,25 +1,24 @@
 import nodemailer from 'nodemailer';
 import moment from 'moment'
 import axios from 'axios';
-import cryptoJS from 'crypto-js';
+// import cryptoJS from 'crypto-js';
 import _ from 'lodash'
 import 'dotenv/config'
 
 import OauthConnection from './Classes/OAuth'
 
-https: // www.ebay.com/itm/Gundam-Build-Fighters-Try-HGBF-056-Chinagguy-China-Kousaka-Mobile-Suit-Kit-/232453563297
 
-	const Twitter = new OauthConnection(
-		process.env.TWITTER_ACCESS,
-		process.env.TWITTER_ACCESS_SECRET,
-		process.env.TWITTER_OAUTH_ACCESS,
-		process.env.TWITTER_OAUTH_ACCESS_SECRET,
-		process.env.TWITTER_BEARER,
-		'https://api.twitter.com/1.1/',
-		'https://api.twitter.com/oauth/request_token',
-		'https://api.twitter.com/oauth/access_token',
-		process.env.CLIENT_HOME,
-	);
+const Twitter = new OauthConnection(
+	process.env.TWITTER_ACCESS,
+	process.env.TWITTER_ACCESS_SECRET,
+	process.env.TWITTER_OAUTH_ACCESS,
+	process.env.TWITTER_OAUTH_ACCESS_SECRET,
+	process.env.TWITTER_BEARER,
+	'https://api.twitter.com/1.1/',
+	'https://api.twitter.com/oauth/request_token',
+	'https://api.twitter.com/oauth/access_token',
+	process.env.CLIENT_HOME,
+);
 
 const transporter = nodemailer.createTransport({
 	host: 'smtp.gmail.com',
@@ -165,7 +164,7 @@ function sendMail(promiseData, siteName, userNotifs, emailsSent) {
 
 }
 
-function sendToTwitter(promiseData, siteName, userNotifs, requestsMade) {
+function sendToTwitter(promiseData, siteName, userNotifs) {
 
 	const tweetToArray = userNotifs.filter(notif => notif.site === 'twitter').map(notif =>
 		notif.url
@@ -174,15 +173,18 @@ function sendToTwitter(promiseData, siteName, userNotifs, requestsMade) {
 	if (!_.isEmpty(tweetToArray)) {
 		const recievers = `@${tweetToArray.join(' @')}`
 
-		Twitter.post(
-			'statuses/update', {
-				status: `Hey ${recievers} you have new ${siteName} notifications ${moment().format('MM-DD-YYYY HH:mm:ss')}`
-			}, (err) => {
-				if (err) console.log(err);
-			}, (err) => {
-				if (err) console.log(err);
-			}
-		)
+		// REMOVED DUE TO THE WAN WAN APPLICATION BEING WRITE RESTRICTED
+
+		// Twitter.post(
+		// 	'statuses/update', {
+		// 		status: `Hey ${recievers} you have new ${siteName} notifications ${moment().format('MM-DD-YYYY HH:mm:ss')}`
+		// 	}, (err) => {
+		// 		if (err) console.log(err);
+		// 	}, (err) => {
+		// 		if (err) console.log(err);
+		// 	}
+		// )
+
 	}
 }
 
@@ -228,7 +230,6 @@ function getPromiseData(user, promises, limitHeader = null, dataToGet, site, req
 				if (limitHeader) {
 					requestsMade[site] = response.headers[limitHeader];
 				}
-
 				const lastUpdated = moment(user.updated_at);
 
 				if (_.isNil(user.updated_at) &&
@@ -253,14 +254,15 @@ function getPromiseData(user, promises, limitHeader = null, dataToGet, site, req
 								const splitString = value.string.split('./'); // ./ is the designated splitter for the content string
 
 								if (splitString.length === value.data.length) {
+
 									pushData[key] = splitString.reduce((string, curValue, index) => {
 										const toReturn = `${string}${curValue.replace('${}', resolve(data, value.data[index]))}`
 										return toReturn;
 									}, '')
 								} else {
+
 									pushData[key] = resolve(data, value.data[0])
 								}
-
 							} else {
 								pushData[key] = resolve(data, value)
 							}
@@ -280,7 +282,7 @@ function getPromiseData(user, promises, limitHeader = null, dataToGet, site, req
 
 			sendMail(promiseData, site, user.notifications, requestsMade)
 
-			sendToTwitter(promiseData, site, user.notifications, requestsMade)
+			sendToTwitter(promiseData, site, user.notifications)
 		}
 	})
 }
