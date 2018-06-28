@@ -83,7 +83,7 @@
 		"test": "node scripts/test.js --env=jsdom",
 		"server": "nodemon --exec babel-node --presets=env -- ./src/Server/Index.js",
 		"dev": "NODE_ENV=development concurrently \"yarn server\" \" yarn start \" ",
-		"prod": "NODE_ENV=production pm2 build/Server/Index.js"
+		"prod": "NODE_ENV=production pm2 start build/Server/Index.js"
 	},
 	"proxy": "http://localhost:3004",
 	"jest": {
