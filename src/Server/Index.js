@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import server from 'express';
 import session from 'express-session';
 import passport from 'passport';
@@ -17,6 +16,8 @@ import userRoutes from './Routes/Users';
 import intervals from './Intervals';
 import socketsController from './Sockets';
 // import OAuth2 from './Classes/OAuth2';
+
+require('dotenv').config();
 
 const app = server();
 
