@@ -9,6 +9,7 @@ import _ from 'lodash';
 import {
 	OAuth2
 } from 'oauth';
+import 'dotenv/config';
 
 import middleware from './Middleware';
 import authRoutes from './Routes/Auth';
@@ -132,9 +133,9 @@ app.set(
 	)
 );
 
-app.use(server.static(path.join(__dirname, '../../build')));
+app.use(server.static(path.join(__dirname, '../../build/Client')));
 
-app.get('/*', (req, res) => {
+app.get('*', (req, res) => {
 	res.sendFile(path.join(__dirname, '../../build/Client/index.html'));
 });
 
