@@ -134,7 +134,7 @@ app.set(
 app.use(server.static(path.join(__dirname, '../../build')));
 
 app.get('/*', (req, res) => {
-	res.sendFile(path.join(__dirname, '../../build/index.html'));
+	res.sendFile(path.join(__dirname, '../../build/Client/index.html'));
 });
 
 // app.get('*', (req, res) => {
