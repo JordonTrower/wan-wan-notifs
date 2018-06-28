@@ -5,20 +5,20 @@ import axios from 'axios';
 import _ from 'lodash'
 import 'dotenv/config'
 
-import OauthConnection from './Classes/OAuth'
+// import OauthConnection from './Classes/OAuth'
 
 
-const Twitter = new OauthConnection(
-	process.env.TWITTER_ACCESS,
-	process.env.TWITTER_ACCESS_SECRET,
-	process.env.TWITTER_OAUTH_ACCESS,
-	process.env.TWITTER_OAUTH_ACCESS_SECRET,
-	process.env.TWITTER_BEARER,
-	'https://api.twitter.com/1.1/',
-	'https://api.twitter.com/oauth/request_token',
-	'https://api.twitter.com/oauth/access_token',
-	process.env.CLIENT_HOME,
-);
+// const Twitter = new OauthConnection(
+// 	process.env.TWITTER_ACCESS,
+// 	process.env.TWITTER_ACCESS_SECRET,
+// 	process.env.TWITTER_OAUTH_ACCESS,
+// 	process.env.TWITTER_OAUTH_ACCESS_SECRET,
+// 	process.env.TWITTER_BEARER,
+// 	'https://api.twitter.com/1.1/',
+// 	'https://api.twitter.com/oauth/request_token',
+// 	'https://api.twitter.com/oauth/access_token',
+// 	process.env.CLIENT_HOME,
+// );
 
 const transporter = nodemailer.createTransport({
 	host: 'smtp.gmail.com',
@@ -87,11 +87,10 @@ function updatePosts(db, site, userId, toUpload) {
 
 			const uniqUpload = _.chain(Object.assign([], toUpload, trimmed))
 				.uniq('id')
-				.sortBy('added_at');
+				.sortBy('added_at')
+				.value();
 
-			db('posts').where('user_id', userId).andWhere({
-				site
-			}).update({
+			db('posts').where('user_id', userId).andWhere('site', site).update({
 				posts: JSON.stringify(uniqUpload),
 				updated_at: currentDate.format('MM-DD-YYYY HH:mm:ss'),
 
@@ -171,7 +170,7 @@ function sendToTwitter(promiseData, siteName, userNotifs) {
 	)
 
 	if (!_.isEmpty(tweetToArray)) {
-		const recievers = `@${tweetToArray.join(' @')}`
+		// const recievers = `@${tweetToArray.join(' @')}`
 
 		// REMOVED DUE TO THE WAN WAN APPLICATION BEING WRITE RESTRICTED
 
@@ -211,6 +210,7 @@ function getPromiseData(user, promises, limitHeader = null, dataToGet, site, req
 			let responseData = null;
 			dataToGet.info.split('.').forEach(info => {
 				if (responseData) {
+
 					responseData = responseData[info]
 				} else {
 					responseData = response[info]

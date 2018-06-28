@@ -50,7 +50,7 @@ export function getUserSites(userId) {
 }
 
 export function getSocketConnection(userId) {
-	const s = io('http://localhost:3004', {
+	const s = io(process.env.API_HOME, {
 		query: `user=${userId}`
 	});
 

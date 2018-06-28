@@ -114,7 +114,7 @@ router.get('/reddit/callback', (req, res) => {
 							otherSubs.push(userInfo);
 
 							db('userAccounts').where('user_id', req.user.userId).update(userInfo).then(() =>
-								res.redirect('http://localhost:3000/notif')
+								res.redirect(process.env.CLIENT_HOME)
 							)
 						} else {
 
@@ -124,7 +124,7 @@ router.get('/reddit/callback', (req, res) => {
 								user_id: req.user.userId,
 								created_at: currentTime.format('MM-DD-YYYY HH:mm:ss')
 							})).then(() =>
-								res.redirect('http://localhost:3000/notif')
+								res.redirect(process.env.CLIENT_HOME)
 							)
 						}
 					})
