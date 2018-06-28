@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { HashRouter, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import propTypes from 'prop-types';
 import _ from 'lodash';
@@ -16,12 +16,12 @@ class App extends Component {
 	render() {
 		return (
 			<div>
-				<BrowserRouter>
+				<HashRouter>
 					<Switch>
 						<Route exact path="/" component={Home} />
 						<Route path="/notif" component={Routes} />
 					</Switch>
-				</BrowserRouter>
+				</HashRouter>
 			</div>
 		);
 	}

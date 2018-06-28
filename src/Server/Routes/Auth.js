@@ -5,6 +5,8 @@ import crypto from 'crypto';
 import cryptoJs from 'crypto-js'
 import moment from 'moment';
 
+import middleware from '../Middleware';
+
 const router = express();
 
 const {
@@ -50,7 +52,7 @@ router.get('/is-logged-in', (req, res) => {
 
 const redditState = {};
 
-router.get('/reddit/auth', (req, res) => {
+router.get('/reddit/auth', [middleware.wanAuthed, middleware.wanCheckUser], (req, res) => {
 	const state = crypto.randomBytes(20).toString('hex')
 
 	const redditAuth = req.app.get('redditAuth')
@@ -69,7 +71,7 @@ router.get('/reddit/auth', (req, res) => {
 	res.redirect(redditAuth.getAuthorizeUrl(redditAuthParams))
 })
 
-router.get('/reddit/callback', (req, res) => {
+router.get('/reddit/callback', [middleware.wanAuthed, middleware.wanCheckUser], (req, res) => {
 	if (redditState[req.user.userId] === req.query.state && _.isNil(req.query.error)) {
 		delete redditState[req.user.userId];
 
@@ -82,10 +84,6 @@ router.get('/reddit/callback', (req, res) => {
 			response_type: 'code',
 			redirect_uri: `${process.env.API_HOME}login/reddit/callback`,
 			grant_type: 'authorization_code'
-		};
-
-		const headers = {
-			Authorization: `Basic ${Buffer.from(`${process.env.REDDIT_CLIENT}:${process.env.REDDIT_CLIENT_SECRET}`).toString('base64')}`
 		};
 
 		redditAuth.getOAuthAccessToken(
