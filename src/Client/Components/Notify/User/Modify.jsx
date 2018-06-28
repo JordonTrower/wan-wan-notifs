@@ -92,7 +92,7 @@ class Modify extends Component {
 			this.props.userId !== null &&
 			!this.state.checked
 		) {
-			axios.get(`/user/${this.props.userId}/get-subs`).then(res => {
+			axios.get(`/api/user/${this.props.userId}/get-subs`).then(res => {
 				console.log(res.data);
 				this.setState({
 					subscriptions: !_.isEmpty(res.data) ? res.data : [],
@@ -103,7 +103,7 @@ class Modify extends Component {
 				});
 			});
 
-			axios.get(`/user/${this.props.userId}/get-notifs`).then(res => {
+			axios.get(`/api/user/${this.props.userId}/get-notifs`).then(res => {
 				this.setState({
 					notifications:
 						res.data !== '' ? res.data.notifications : [],
@@ -178,7 +178,7 @@ class Modify extends Component {
 	saveSubscriptions() {
 		axios
 			.post(
-				`/user/${this.props.userId}/save-subs`,
+				`/api/user/${this.props.userId}/save-subs`,
 				this.state.subscriptions
 			)
 			.then(res => {
@@ -247,7 +247,7 @@ class Modify extends Component {
 	saveNotifications() {
 		axios
 			.post(
-				`/user/${this.props.userId}/save-notifs`,
+				`/api/user/${this.props.userId}/save-notifs`,
 				this.state.notifications
 			)
 			.then(res => {
@@ -256,9 +256,11 @@ class Modify extends Component {
 	}
 
 	deleteAccount() {
-		axios.delete(`/user/${this.props.userId}/delete-account`).then(() => {
-			this.props.history.push('/');
-		});
+		axios
+			.delete(`/api/user/${this.props.userId}/delete-account`)
+			.then(() => {
+				this.props.history.push('/');
+			});
 	}
 
 	render() {
@@ -288,7 +290,9 @@ class Modify extends Component {
 											<option value="twitter">
 												Twitter
 											</option>
-											<option value="reddit">Reddit</option>
+											<option value="reddit">
+												Reddit
+											</option>
 										</select>
 									</div>
 

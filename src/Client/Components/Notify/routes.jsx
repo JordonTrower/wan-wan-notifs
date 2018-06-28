@@ -29,7 +29,7 @@ class Routes extends Component {
 		this.getSites();
 		if (!_.isEmpty(this.props.user)) {
 			axios
-				.get(`/user/${this.props.user.id}/check-user`)
+				.get(`/api/user/${this.props.user.id}/check-user`)
 				.catch(res => {
 					if (res.toString().includes('401')) {
 						window.location = res.response.data;

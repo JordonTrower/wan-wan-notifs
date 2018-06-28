@@ -56,18 +56,14 @@ class Dashboard extends Component {
 		) {
 			axios
 				.get(
-					`/user/${this.props.userId}/get-posts?site=${this.props
+					`/api/user/${this.props.userId}/get-posts?site=${this.props
 						.match.params.site || ''}`
 				)
 				.then(res => {
 					if (!_.isEmpty(res.data)) {
 						console.log(res.data);
 						this.setState({
-							posts: _.orderBy(
-								res.data,
-								['posted_at'],
-								['desc']
-							),
+							posts: _.orderBy(res.data, ['posted_at'], ['desc']),
 							checked: true
 						});
 					} else {

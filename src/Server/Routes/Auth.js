@@ -63,7 +63,7 @@ router.get('/reddit/auth', [middleware.wanAuthed, middleware.wanCheckUser], (req
 		client_id: process.env.REDDIT_CLIENT,
 		response_type: 'code',
 		state,
-		redirect_uri: `${process.env.API_HOME}login/reddit/callback`,
+		redirect_uri: `${process.env.REACT_APP_API_HOME}login/reddit/callback`,
 		duration: 'permanent',
 		scope: 'mysubreddits'
 	};
@@ -82,7 +82,7 @@ router.get('/reddit/callback', [middleware.wanAuthed, middleware.wanCheckUser], 
 
 		const redditAuthParams = {
 			response_type: 'code',
-			redirect_uri: `${process.env.API_HOME}login/reddit/callback`,
+			redirect_uri: `${process.env.REACT_APP_API_HOME}login/reddit/callback`,
 			grant_type: 'authorization_code'
 		};
 

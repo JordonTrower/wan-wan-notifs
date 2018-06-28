@@ -5,7 +5,11 @@ const Home = () => (
 	<div>
 		<Header>
 			<h2>Wan-Wan!</h2>
-			<a className="button" href={`${process.env.API_URL}login`}>
+
+			<a
+				className="button"
+				href={`${process.env.REACT_APP_API_HOME}login`}
+			>
 				Login!
 			</a>
 		</Header>

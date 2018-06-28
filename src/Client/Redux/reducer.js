@@ -13,7 +13,7 @@ const GET_USER_SITES = 'GET_USER_SITES'
 const GET_SOCKET_CONNECTION = 'GET_SOCKET_CONNETION'
 
 export function getUserInfo() {
-	const userInfo = axios.get('/login/is-logged-in').then(res => {
+	const userInfo = axios.get('/api/login/is-logged-in').then(res => {
 
 		if (res.data.res === "success") {
 			return res.data.user;
@@ -32,7 +32,7 @@ export function getUserInfo() {
 }
 
 export function getUserSites(userId) {
-	const userSites = axios.get(`/user/${userId}/get-sites`).then(res => {
+	const userSites = axios.get(`/api/user/${userId}/get-sites`).then(res => {
 
 		console.log(res);
 		if (res.data.res === "success") {
@@ -50,7 +50,7 @@ export function getUserSites(userId) {
 }
 
 export function getSocketConnection(userId) {
-	const s = io(process.env.API_HOME, {
+	const s = io(process.env.REACT_APP_API_HOME, {
 		query: `user=${userId}`
 	});
 
