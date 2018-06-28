@@ -9,8 +9,6 @@ export default {
 	},
 
 	wanCheckUser(req, res, next) {
-		console.log(req.session)
-		console.log(req.params);
 		if (req.user.userId === Number(req.params.userId)) {
 			next();
 		} else if (req.params.userId === 'not-logged') {
