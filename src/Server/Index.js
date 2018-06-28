@@ -9,6 +9,7 @@ import _ from 'lodash';
 import {
 	OAuth2
 } from 'oauth';
+import knexSession from 'connect-session-knex';
 import 'dotenv/config';
 
 import middleware from './Middleware';
@@ -43,12 +44,20 @@ const connectedDb = knex({
 	connection: DB_CONNECTION_STRING
 });
 
+const KnexSessionStore = knexSession(session);
+
+const sessionStore = new KnexSessionStore({
+	knex: connectedDb,
+	tableName: 'sessions'
+})
+
 app.set('db', connectedDb);
 
 app.use(bodyParser.json());
 
 app.use(
 	session({
+		store: sessionStore,
 		secret: SESSION_SECRET,
 		resave: false,
 		saveUninitialized: false

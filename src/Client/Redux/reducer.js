@@ -34,7 +34,6 @@ export function getUserInfo() {
 export function getUserSites(userId) {
 	const userSites = axios.get(`/api/user/${userId}/get-sites`).then(res => {
 
-		console.log(res);
 		if (res.data.res === "success") {
 			return _.map(res.data.data, 'site');
 		}

@@ -256,11 +256,11 @@ function getPromiseData(user, promises, limitHeader = null, dataToGet, site, req
 								if (splitString.length === value.data.length) {
 
 									pushData[key] = splitString.reduce((string, curValue, index) => {
+										// combine the total string and the value of the resolved object data
 										const toReturn = `${string}${curValue.replace('${}', resolve(data, value.data[index]))}`
 										return toReturn;
 									}, '')
 								} else {
-
 									pushData[key] = resolve(data, value.data[0])
 								}
 							} else {
