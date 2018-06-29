@@ -1754,10 +1754,6 @@ connect-redis@^3.3.3:
     debug "^3.1.0"
     redis "^2.1.0"
 
-connect-session-knex@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/connect-session-knex/-/connect-session-knex-1.4.0.tgz#93d46bab8cb664750aec665e55bf71e54beac665"
-
 console-browserify@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/console-browserify/-/console-browserify-1.1.0.tgz#f0241c45730a9fc6323b206dbf38edc741d0bb10"

@@ -7,6 +7,7 @@ import { getUserInfo } from '../Redux/reducer';
 import Home from './Home';
 import Routes from './Notify/routes';
 
+const fourOhFour = () => <div>Oops, this page is not found. Error 404</div>;
 class App extends Component {
 	componentDidMount() {
 		if (_.isEmpty(this.props.user) || this.props.user.id === 'not-logged')
@@ -20,6 +21,7 @@ class App extends Component {
 					<Switch>
 						<Route exact path="/" component={Home} />
 						<Route path="/notif" component={Routes} />
+						<Route path="/*" component={fourOhFour} />
 					</Switch>
 				</BrowserRouter>
 			</div>

@@ -25,6 +25,7 @@ router.get('/callback', passport.authenticate('auth0', {
 }))
 
 router.get('/is-logged-in', (req, res) => {
+	console.log(req.session);
 	if (!_.isEmpty(req.user) && req.user.userId !== 'not-logged') {
 
 		const db = req.app.get('db')

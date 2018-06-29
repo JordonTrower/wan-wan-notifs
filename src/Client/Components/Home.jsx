@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import Header from './Common/Header';
 
 const Home = () => (
@@ -16,4 +17,8 @@ const Home = () => (
 	</div>
 );
 
-export default Home;
+function mapStateToProps(state) {
+	return { user: state.user };
+}
+
+export default connect(mapStateToProps)(Home);
