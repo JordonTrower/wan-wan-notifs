@@ -301,7 +301,7 @@ function setPromises(query, site, Authorization, url, requestsMade, lastCheck, l
 			if (_.isNil(user.updated_at) || lastUpdated.unix() <= lastCheck.unix() || force) {
 
 				user.subscriptions.forEach(sub => {
-					if (sub.site === site && requestsMade[site] >= 20) {
+					if (sub.site === site && requestsMade[site] >= 20 || sub.site === site && _.isNil(requestsMade[site])) {
 
 						promises.push(
 							axios({
