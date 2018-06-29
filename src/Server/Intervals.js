@@ -226,9 +226,10 @@ function getPromiseData(user, promises, limitHeader = null, dataToGet, site, req
 				}
 
 				const postDate = moment(new Date(time))
-
-				if (limitHeader) {
-					requestsMade[site] = response.headers[limitHeader];
+				if (!_.isNil(requestsMade[site])) {
+					if (!_.isNil(limitHeader) && limitHeader !== '') {
+						requestsMade[site] = response.headers[limitHeader];
+					}
 				}
 				const lastUpdated = moment(user.updated_at);
 

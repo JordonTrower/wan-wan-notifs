@@ -153,8 +153,7 @@ httpServer.listen(SERVER_PORT);
 
 const requestsMade = {
 	emails: 0,
-	twitter: 1500,
-	reddit: 60
+	twitter: 1500
 };
 
 intervals.getTwitter(app, requestsMade);
