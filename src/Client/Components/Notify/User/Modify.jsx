@@ -388,7 +388,7 @@ class Modify extends Component {
 							</Button>
 						</div>
 
-						<div className="bunttons">
+						<div className="buttons">
 							<Button color="Danger" onClick={this.deleteAccount}>
 								Delete Account
 							</Button>
