@@ -82,7 +82,7 @@
 	"scripts": {
 		"start": "node scripts/start.js",
 		"build-client": "node scripts/build.js",
-		"build-server": "minify -d ./build/Server ./src/Server",
+		"build-server": "babel -d ./build/Server ./src/Server",
 		"build": "yarn build-client && yarn build-server",
 		"test": "node scripts/test.js --env=jsdom",
 		"server": "nodemon --exec babel-node --presets=env -- ./src/Server/Index.js",
