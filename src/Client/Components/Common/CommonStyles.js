@@ -24,9 +24,10 @@ export default {
 	`,
 
 	btnPrimary: css `
-		color: #fff;
-		background-color: #007bff;
-		border-color: #007bff;
+		color: #E8F1F2;
+	
+		background-color: #41337A;
+		border-color: #41337A;
 	`,
 
 	btnDanger: css `
@@ -39,6 +40,12 @@ export default {
 		color: #fff;
 		background-color: #218838;
 		border-color: #218838;
+	`,
+
+	btnLarge: css `
+		font-size: 18px;
+		width: 150px;
+		height: 50px;
 	`,
 
 	sm: css `

@@ -5,7 +5,7 @@ import propTypes from 'prop-types';
 const Block = styled.div`
 	width: 350px;
 	height: 350px;
-	background: #131a22;
+	background: #0b132b;
 	margin-top: 25px;
 	margin-bottom: 25px;
 	@media (min-width: 370px) {
@@ -21,9 +21,9 @@ const Block = styled.div`
 	> div {
 		width: 300px;
 		height: 300px;
-		background: #484848;
+		background: #4f396c;
 		border-radius: 10px;
-		color: white;
+		color: #E8F1F2;
 		div.topInfo {
 			display: flex;
 			flex-direction: column;
@@ -31,10 +31,12 @@ const Block = styled.div`
 			> div {
 				display: flex;
 				justify-content: space-between;
-
+				
 				> a {
 					text-align: center;
 					display: flex;
+					text-decoration: none;
+					color: #E8F1F2
 					flex-direction: column;
 					justify-content: center;
 				}

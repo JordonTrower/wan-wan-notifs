@@ -9,14 +9,15 @@ export default styled.div `
 	height: calc(100vh - 75px);
 	top: 75px;
 	left: 0;
-	background: #232F3E;
+	background: #282F44;
 	display: flex;
 	flex-direction: column;
+	border-top: solid 1px #4F396C;
 	> a {
 		padding-top: 35px;
 		padding-left: 25px;
 		text-decoration: underline;
-		color: white;
+		color: #E8F1F2;
 	}
 
 `

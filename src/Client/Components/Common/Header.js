@@ -8,30 +8,27 @@ export default styled.div `
 	width: 100vw;
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
-	background: #232F3E;
+
+	background: #282F44;
+	color: #e8f1f2;
+
+	> h2 {
+		padding-top: 20px;
+		margin-top: 0px;
+		font-size: 28px;
+		padding-left: 25px;
+	}
+
+	> a {
+
+		padding-left: 25px;
+		color: #e8f1f2;
+		text-decoration: none;
+	}
+
 	> a.pfp {
 		margin-right: 25px
 	} 
-	> a.button {
-		border: 2px black solid;
-		background: #37475A;
-		color: white;
-		display: flex;
-		justify-content: space-around;
-		align-items: center;
-		border-radius: 7px;
-		height: 50px;
-		width: 100px;
-		margin-right:25px;
-		&:active {
-			background: #131a22;
-		}
-	}
-	> a {
-		text-decoration: none;
-		color: white;
-		padding-left: 25px;
-	}
+
 
 `;

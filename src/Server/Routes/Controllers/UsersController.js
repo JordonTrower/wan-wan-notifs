@@ -172,6 +172,12 @@ export default {
 			})
 	},
 
+	logout(req, res) {
+		req.session.destroy();
+
+		res.send('success');
+	},
+
 	deleteAccount(req, res) {
 		const db = req.app.get('db');
 
@@ -181,14 +187,18 @@ export default {
 
 				db('userNotifications').where('user_id', req.user.userId).delete().then(() => {
 
-					db('users').where('id', req.user.userId).delete().then(() => {
-						req.session.destroy();
+					db('posts').where('user_id', req.user.user_id).delete().then(() => {
 
-						return res.status(200).send({
-							res: 'success',
-							data: 'Deleted Account'
+						db('users').where('id', req.user.userId).delete().then(() => {
+							req.session.destroy();
+
+							return res.status(200).send({
+								res: 'success',
+								data: 'Deleted Account'
+							})
 						})
 					})
+
 				})
 			)
 	}

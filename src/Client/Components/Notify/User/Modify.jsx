@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import _ from 'lodash';
 import InputGroup from '../../Common/InputGroup';
-import commonCSS from '../../Common/CommonStyles';
+import Button from '../../Common/Button';
 
 const Body = styled.div`
 	display: flex;
@@ -34,20 +34,6 @@ const Body = styled.div`
 	}
 `;
 
-const Button = styled.button`
-	margin-right: 25px;
-	${commonCSS.btn};
-
-	margin-top: 15px;
-
-	${props => {
-		if (!_.isNil(props.color)) {
-			return commonCSS[`btn${props.color}`];
-		}
-		return commonCSS.btnPrimary;
-	}};
-	`;
-
 class Modify extends Component {
 	constructor() {
 		super();
@@ -75,6 +61,7 @@ class Modify extends Component {
 		this.saveNotifications = this.saveNotifications.bind(this);
 
 		this.deleteAccount = this.deleteAccount.bind(this);
+		this.logOut = this.logOut.bind(this);
 	}
 
 	componentDidMount() {
@@ -263,6 +250,12 @@ class Modify extends Component {
 			});
 	}
 
+	logOut() {
+		axios.post(`/api/user/${this.props.userId}/logout`).then(() => {
+			this.props.history.push('/');
+		});
+	}
+
 	render() {
 		return (
 			<Body>
@@ -317,7 +310,7 @@ class Modify extends Component {
 							))}
 
 						<div className="buttons">
-							<Button
+							{/* <Button
 								onClick={() => {
 									console.log(
 										`${
@@ -330,7 +323,7 @@ class Modify extends Component {
 								}}
 							>
 								Add Reddit Account
-							</Button>
+							</Button> */}
 							<Button onClick={this.addSubscription}>
 								Add Subscription
 							</Button>
@@ -394,9 +387,15 @@ class Modify extends Component {
 								Save Notifications
 							</Button>
 						</div>
-						<Button color="Danger" onClick={this.deleteAccount}>
-							Delete Account
-						</Button>
+
+						<div className="bunttons">
+							<Button color="Danger" onClick={this.deleteAccount}>
+								Delete Account
+							</Button>
+							<Button color="Danger" onClick={this.logOut}>
+								Log Out
+							</Button>
+						</div>
 					</div>
 				</div>
 			</Body>

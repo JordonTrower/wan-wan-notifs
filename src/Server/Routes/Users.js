@@ -20,6 +20,8 @@ router.post('/save-subs', usersController.saveSubs)
 
 router.post('/save-notifs', usersController.saveNotif)
 
+router.post('/logout', usersController.logout);
+
 router.delete('/delete-account', usersController.deleteAccount)
 
 router.get('/check-user', (req, res) => {
