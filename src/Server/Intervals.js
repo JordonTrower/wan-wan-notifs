@@ -64,7 +64,9 @@ function getTables(db, site) {
 
 function updatePosts(db, site, userId, toUpload) {
 
-	const currentDate = moment.utc().format('YYYY-MM-DD HH:mm:ss Z').slice(0, -3);
+	const currentDate = moment.utc();
+
+	const currentDateString = currentDate.format('YYYY-MM-DD HH:mm:ss Z').slice(0, -3)
 	// Put currentDate into a good format for timestamp.
 
 	db('posts').where('user_id', userId).andWhere({
@@ -77,8 +79,8 @@ function updatePosts(db, site, userId, toUpload) {
 				user_id: userId,
 				posts: JSON.stringify(toUpload),
 				site,
-				updated_at: currentDate,
-				created_at: currentDate
+				updated_at: currentDateString,
+				created_at: currentDateString
 			}).then(() => {
 
 			})
@@ -93,7 +95,7 @@ function updatePosts(db, site, userId, toUpload) {
 
 			db('posts').where('user_id', userId).andWhere('site', site).update({
 				posts: JSON.stringify(uniqUpload),
-				updated_at: currentDate,
+				updated_at: currentDateString,
 
 			}).then(() => {
 
