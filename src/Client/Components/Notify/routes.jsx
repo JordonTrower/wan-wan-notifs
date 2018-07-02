@@ -75,7 +75,7 @@ class Routes extends Component {
 					</Link>
 				</Header>
 
-				<div style={{ display: 'flex', width: '100vw' }}>
+				<div style={{ display: 'flex', width: '99vw' }}>
 					<Sidebar>
 						<Link to="/notif/">
 							<h1>All Sites</h1>

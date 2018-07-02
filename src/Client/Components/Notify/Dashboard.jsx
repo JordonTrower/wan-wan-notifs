@@ -80,9 +80,24 @@ class Dashboard extends Component {
 		return (
 			<Body>
 				<div>
-					{this.state.posts.map(post => (
-						<Block key={`${post.id}`} post={post} />
-					))}
+					{!_.isEmpty(this.state.posts) ? (
+						this.state.posts.map(post => (
+							<Block key={`${post.id}`} post={post} />
+						))
+					) : (
+						<div>
+							<p style={{ fontSize: '24px' }}>
+								{' '}
+								In order to get started, please click on your
+								profile picture and add some notifications and
+								subscriptions.
+							</p>
+							<p>
+								YOU MUST HAVE AT LEAST ONE SUBSCRIPTION AND
+								NOTIFICATION, and please allow up to 15 minutes
+							</p>
+						</div>
+					)}
 				</div>
 			</Body>
 		);

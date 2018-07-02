@@ -262,6 +262,16 @@ class Modify extends Component {
 				<div>
 					<div className="subscriptions">
 						<h1>Subscriptions</h1>
+						<p>Instructions for Subscriptions:</p>
+						<p>
+							For a Reddit subscription, please put in the
+							subreddit name like &quot;ProgrammerHumor&quot;
+							without quotes;
+						</p>
+						<p>
+							For a Twitter subscription, please put in the users
+							screen name
+						</p>
 						{this.state.subscriptions
 							.filter(subscription => _.isNil(subscription.type))
 							.map(subscription => (
@@ -338,6 +348,18 @@ class Modify extends Component {
 					</div>
 					<div>
 						<h1>Notifications</h1>
+
+						<p>Instructions for Notifications:</p>
+						<p>
+							For a email notifcation, please input your full
+							email
+						</p>
+						<p>
+							For a Twitter notification, please put in your
+							twitter name - Twitter notifications are currently
+							unavailable
+						</p>
+
 						{this.state.notifications.map(notif => (
 							<InputGroup key={`input-group-notif-${notif.id}`}>
 								<div className="inputGroupPrependContainer">

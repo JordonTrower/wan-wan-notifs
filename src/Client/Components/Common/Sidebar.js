@@ -6,7 +6,7 @@ export default styled.div `
 	}
 	position: sticky;
 	width: 250px;
-	height: calc(100vh - 75px);
+	height: calc(100vh - 76px);
 	top: 75px;
 	left: 0;
 	background: #282F44;
