@@ -80,6 +80,14 @@ const Home = () => (
 						posts, but no worries as it can still read.
 					</SubText>
 				</div>
+				<div>
+					<MainText>
+						Github Repo:
+					</MainText>
+					<SubText>
+						https://github.com/jospooky/wan-wan-notifs
+					</SubText>
+				</div>
 			</InfoBox>
 		</Body>
 	</div>
