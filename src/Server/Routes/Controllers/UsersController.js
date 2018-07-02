@@ -187,7 +187,7 @@ export default {
 
 				db('userNotifications').where('user_id', req.user.userId).delete().then(() => {
 
-					db('posts').where('user_id', req.user.user_id).delete().then(() => {
+					db('posts').where('user_id', req.user.userId).delete().then(() => {
 
 						db('users').where('id', req.user.userId).delete().then(() => {
 							req.session.destroy();
