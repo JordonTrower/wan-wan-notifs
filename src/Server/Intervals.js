@@ -88,9 +88,11 @@ function updatePosts(db, site, userId, toUpload) {
 
 			const trimmed = dbSelect.posts.filter(post => moment(new Date(post.posted_at)).unix() > currentDate.subtract(2, 'days').unix())
 
-			const uniqUpload = _.chain(Object.assign([], toUpload, trimmed))
-				.uniqBy('id')
-				.value();
+			let uniqUpload = _.uniqBy(Object.assign([], toUpload, trimmed), 'id');
+
+			uniqUpload = uniqUpload.sort((a, b) => {
+				return moment.utc(a.posted_at).diff(moment.utc(b.posted_at));
+			})
 
 			db('posts').where('user_id', userId).andWhere('site', site).update({
 				posts: JSON.stringify(uniqUpload),
