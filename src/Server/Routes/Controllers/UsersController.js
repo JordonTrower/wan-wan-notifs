@@ -56,9 +56,9 @@ export default {
 			.select('posts')
 			.then(dbRes => {
 
-				const results = _.flatMap(dbRes, (currentItem) => {
-					return currentItem.posts;
-				})
+				const results = _.flatMap(dbRes, (currentItem) =>
+					currentItem.posts
+				)
 
 				res.status(200).send(results);
 			})

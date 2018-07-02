@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import propTypes from 'prop-types';
+import moment from 'moment';
 
 const Block = styled.div`
 	width: 350px;
@@ -69,13 +70,21 @@ const removeLink = content => {
 	return content;
 };
 
+const applyTimeOffset = postedAt => {
+	const utc = moment.utc(postedAt);
+
+	const local = moment(utc).local();
+
+	return local.format('MM-DD-YYYY HH:mm:ss');
+};
+
 const BlockComp = props => (
 	<Block>
 		<div>
 			<div className="topInfo">
 				<div>
 					<p>{props.post.site}</p>
-					<p>{props.post.posted_at}</p>
+					<p>{applyTimeOffset(props.post.posted_at)}</p>
 				</div>
 				<div>
 					<p>{props.post.from}</p>
