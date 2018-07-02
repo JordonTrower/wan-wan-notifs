@@ -61,7 +61,6 @@ class Dashboard extends Component {
 				)
 				.then(res => {
 					if (!_.isEmpty(res.data)) {
-						console.log(res.data);
 						this.setState({
 							posts: _.orderBy(res.data, ['posted_at'], ['desc']),
 							checked: true

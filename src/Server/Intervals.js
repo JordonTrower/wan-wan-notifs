@@ -95,16 +95,16 @@ function updatePosts(db, site, userId, toUpload) {
 			} else {
 				const trimmed = dbSelect.posts.filter(
 					post =>
-						moment(new Date(post.posted_at)).unix() >
-						currentDate.subtract(2, 'days').unix()
+					moment(new Date(post.posted_at)).unix() >
+					currentDate.subtract(2, 'days').unix()
 				);
 
 				let uniqUpload = _.uniqBy(toUpload.concat(trimmed), 'id');
 
 				uniqUpload = uniqUpload.sort((a, b) =>
 					moment
-						.utc(new Date(a.posted_at))
-						.diff(moment.utc(new Date(b.posted_at)))
+					.utc(new Date(a.posted_at))
+					.diff(moment.utc(new Date(b.posted_at)))
 				);
 
 				db('posts')
@@ -249,9 +249,9 @@ function getPromiseData(
 				if (
 					(_.isNil(user.updated_at) &&
 						postDate.unix() >=
-							moment()
-								.subtract(1, 'days')
-								.unix()) ||
+						moment()
+						.subtract(1, 'days')
+						.unix()) ||
 					postDate.unix() >= lastUpdated.unix()
 				) {
 					const pushData = {
