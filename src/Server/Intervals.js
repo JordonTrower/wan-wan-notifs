@@ -90,7 +90,6 @@ function updatePosts(db, site, userId, toUpload) {
 
 			const uniqUpload = _.chain(Object.assign([], toUpload, trimmed))
 				.uniqBy('id')
-				.sortBy('added_at')
 				.value();
 
 			db('posts').where('user_id', userId).andWhere('site', site).update({
