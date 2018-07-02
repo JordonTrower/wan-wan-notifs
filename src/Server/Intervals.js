@@ -483,7 +483,7 @@ export default {
 					'data.permalink',
 				]
 			},
-			created_at: 'data.created',
+			created_at: 'data.created_utc',
 			id: 'data.id'
 		}
 
