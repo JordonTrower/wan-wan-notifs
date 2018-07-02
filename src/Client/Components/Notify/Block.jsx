@@ -71,8 +71,7 @@ const removeLink = content => {
 };
 
 const applyTimeOffset = postedAt => {
-	const moddedPostedAt = `${postedAt}:00`;
-	const utc = moment.utc(moddedPostedAt, 'YYYY-MM-DD HH:mm:ss Z');
+	const utc = moment.utc(postedAt, 'MMM-DD-YYYY HH:mm:ss Z');
 
 	const local = moment(utc).local();
 
