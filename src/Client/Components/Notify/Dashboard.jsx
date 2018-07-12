@@ -56,7 +56,7 @@ class Dashboard extends Component {
 		) {
 			axios
 				.get(
-					`/api/user/${this.props.userId}/get-posts?site=${this.props
+					`${process.env.REACT_APP_API_HOME}/user/${this.props.userId}/get-posts?site=${this.props
 						.match.params.site || ''}`
 				)
 				.then(res => {

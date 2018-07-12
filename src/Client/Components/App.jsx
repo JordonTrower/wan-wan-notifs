@@ -19,8 +19,17 @@ class App extends Component {
 			<div>
 				<BrowserRouter>
 					<Switch>
-						<Route exact path="/" component={Home} />
-						<Route path="/notif" component={Routes} />
+						<Route
+							exact
+							path={`${process.env.REACT_APP_NGINX_LOCATION}/`}
+							component={Home}
+						/>
+						<Route
+							path={`${
+								process.env.REACT_APP_NGINX_LOCATION
+							}/notif`}
+							component={Routes}
+						/>
 						<Route path="/*" component={fourOhFour} />
 					</Switch>
 				</BrowserRouter>

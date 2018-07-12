@@ -79,30 +79,41 @@ class Modify extends Component {
 			this.props.userId !== null &&
 			!this.state.checked
 		) {
-			axios.get(`/api/user/${this.props.userId}/get-subs`).then(res => {
-				console.log(res.data);
-				this.setState({
-					subscriptions: !_.isEmpty(res.data) ? res.data : [],
-					subId: !_.isEmpty(res.data)
-						? res.data[res.data.length - 1].id + 1
-						: 0,
-					checked: true
-				});
-			});
-
-			axios.get(`/api/user/${this.props.userId}/get-notifs`).then(res => {
-				this.setState({
-					notifications:
-						res.data !== '' ? res.data.notifications : [],
-					notifId:
-						res.data !== ''
-							? res.data.notifications[
-								res.data.notifications.length - 1
-							  ].id + 1
+			axios
+				.get(
+					`${process.env.REACT_APP_API_HOME}/user/${
+						this.props.userId
+					}/get-subs`
+				)
+				.then(res => {
+					this.setState({
+						subscriptions: !_.isEmpty(res.data) ? res.data : [],
+						subId: !_.isEmpty(res.data)
+							? res.data[res.data.length - 1].id + 1
 							: 0,
-					checked: true
+						checked: true
+					});
 				});
-			});
+
+			axios
+				.get(
+					`${process.env.REACT_APP_API_HOME}/user/${
+						this.props.userId
+					}/get-notifs`
+				)
+				.then(res => {
+					this.setState({
+						notifications:
+							res.data !== '' ? res.data.notifications : [],
+						notifId:
+							res.data !== ''
+								? res.data.notifications[
+									res.data.notifications.length - 1
+								  ].id + 1
+								: 0,
+						checked: true
+					});
+				});
 		}
 	}
 
@@ -165,11 +176,13 @@ class Modify extends Component {
 	saveSubscriptions() {
 		axios
 			.post(
-				`/api/user/${this.props.userId}/save-subs`,
+				`${process.env.REACT_APP_API_HOME}/user/${
+					this.props.userId
+				}/save-subs`,
 				this.state.subscriptions
 			)
-			.then(res => {
-				console.log(res.data);
+			.then(() => {
+			
 			});
 	}
 
@@ -234,26 +247,38 @@ class Modify extends Component {
 	saveNotifications() {
 		axios
 			.post(
-				`/api/user/${this.props.userId}/save-notifs`,
+				`${process.env.REACT_APP_API_HOME}/user/${
+					this.props.userId
+				}/save-notifs`,
 				this.state.notifications
 			)
-			.then(res => {
-				console.log(res.data);
+			.then(() => {
+				
 			});
 	}
 
 	deleteAccount() {
 		axios
-			.delete(`/api/user/${this.props.userId}/delete-account`)
+			.delete(
+				`${process.env.REACT_APP_API_HOME}/user/${
+					this.props.userId
+				}/delete-account`
+			)
 			.then(() => {
 				this.props.history.push('/');
 			});
 	}
 
 	logOut() {
-		axios.post(`/api/user/${this.props.userId}/logout`).then(() => {
-			this.props.history.push('/');
-		});
+		axios
+			.post(
+				`${process.env.REACT_APP_API_HOME}/user/${
+					this.props.userId
+				}/logout`
+			)
+			.then(() => {
+				this.props.history.push('/');
+			});
 	}
 
 	render() {

@@ -29,7 +29,11 @@ class Routes extends Component {
 		this.getSites();
 		if (!_.isEmpty(this.props.user)) {
 			axios
-				.get(`/api/user/${this.props.user.id}/check-user`)
+				.get(
+					`${process.env.REACT_APP_API_HOME}/user/${
+						this.props.user.id
+					}/check-user`
+				)
 				.catch(res => {
 					if (res.toString().includes('401')) {
 						window.location = res.response.data;
@@ -61,11 +65,16 @@ class Routes extends Component {
 		return (
 			<div>
 				<Header>
-					<Link to="/notif/">
+					<Link to={`${process.env.REACT_APP_NGINX_LOCATION}/notif/`}>
 						<h2>Wan-Wan Notifications!</h2>
 					</Link>
 
-					<Link to="/notif/mod-user" className="pfp">
+					<Link
+						to={`${
+							process.env.REACT_APP_NGINX_LOCATION
+						}/notif/mod-user`}
+						className="pfp"
+					>
 						<img
 							width="75px"
 							height="75px"
@@ -77,21 +86,46 @@ class Routes extends Component {
 
 				<div style={{ display: 'flex', width: '99vw' }}>
 					<Sidebar>
-						<Link to="/notif/">
+						<Link
+							to={`${
+								process.env.REACT_APP_NGINX_LOCATION
+							}/notif/`}
+						>
 							<h1>All Sites</h1>
 						</Link>
 
 						{this.props.sites.map(site => (
-							<Link key={site} to={`/notif/get-${site}`}>
+							<Link
+								key={site}
+								to={`${
+									process.env.REACT_APP_NGINX_LOCATION
+								}/notif/get-${site}`}
+							>
 								<h1>{_.capitalize(site)}</h1>
 							</Link>
 						))}
 					</Sidebar>
 
 					<Switch>
-						<Route exact path="/notif/" component={Dashboard} />
-						<Route path="/notif/get-:site" component={Dashboard} />
-						<Route path="/notif/mod-user" component={ModifyUser} />
+						<Route
+							exact
+							path={`${
+								process.env.REACT_APP_NGINX_LOCATION
+							}/notif/`}
+							component={Dashboard}
+						/>
+						<Route
+							path={`${
+								process.env.REACT_APP_NGINX_LOCATION
+							}/notif/get-:site`}
+							component={Dashboard}
+						/>
+						<Route
+							path={`${
+								process.env.REACT_APP_NGINX_LOCATION
+							}/notif/mod-user`}
+							component={ModifyUser}
+						/>
 					</Switch>
 				</div>
 			</div>

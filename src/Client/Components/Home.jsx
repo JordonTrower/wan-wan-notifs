@@ -27,7 +27,7 @@ const SubText = styled.p`
 	color: #282f44;
 	font-size: 18px;
 `;
-
+console.log(process.env.REACT_APP_API_HOME);
 const Home = () => (
 	<div>
 		<Header>
@@ -35,7 +35,7 @@ const Home = () => (
 
 			<Button
 				onClick={() => {
-					window.location = `${process.env.REACT_APP_API_HOME}login`;
+					window.location = `${process.env.REACT_APP_API_HOME}/login`;
 				}}
 				large
 			>
@@ -81,9 +81,7 @@ const Home = () => (
 					</SubText>
 				</div>
 				<div>
-					<MainText>
-						Github Repo:
-					</MainText>
+					<MainText>Github Repo:</MainText>
 					<SubText>
 						https://github.com/jospooky/wan-wan-notifs
 					</SubText>

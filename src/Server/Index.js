@@ -19,7 +19,7 @@ import intervals from './Intervals';
 import socketsController from './Sockets';
 // import OAuth2 from './Classes/OAuth2';
 
-require('dotenv').config();
+require('dotenv-expand')(require('dotenv').config());
 
 const app = server();
 
@@ -66,45 +66,43 @@ app.use(passport.session());
 
 passport.use(
 	new Auth0Strat({
-			domain: AUTH0_DOMAIN,
-			clientID: AUTH0_CLIENT_ID,
-			clientSecret: AUTH0_CLIENT_SECRET,
-			callbackURL: AUTH0_CALLBACK,
-			scope: 'openid email profile'
-		},
-		(accessToken, refreshToken, extraParams, user, done) => {
-			const db = app.get('db');
+		domain: AUTH0_DOMAIN,
+		clientID: AUTH0_CLIENT_ID,
+		clientSecret: AUTH0_CLIENT_SECRET,
+		callbackURL: AUTH0_CALLBACK,
+		scope: 'openid email profile'
+	}, (accessToken, refreshToken, extraParams, user, done) => {
+		const db = app.get('db');
 
-			db('users')
-				.select('id')
-				.where('auth_id', user.user_id)
-				.first()
-				.then(dbRes => {
-					if (_.isEmpty(dbRes)) {
-						const currentTime = new Date();
-						db('users')
-							.insert({
-								name: user.nickname,
-								auth_id: user.user_id,
-								email: user.emails ? user.emails[0].value : '',
-								picture: user.picture || '',
-								updated_at: currentTime.toISOString(),
-								created_at: currentTime.toISOString()
-							})
-							.returning('id')
-							.then(insertRes => {
-								done(null, {
-									userId: insertRes[0]
-								});
+		db('users')
+			.select('id')
+			.where('auth_id', user.user_id)
+			.first()
+			.then(dbRes => {
+				if (_.isEmpty(dbRes)) {
+					const currentTime = new Date();
+					db('users')
+						.insert({
+							name: user.nickname,
+							auth_id: user.user_id,
+							email: user.emails ? user.emails[0].value : '',
+							picture: user.picture || '',
+							updated_at: currentTime.toISOString(),
+							created_at: currentTime.toISOString()
+						})
+						.returning('id')
+						.then(insertRes => {
+							done(null, {
+								userId: insertRes[0]
 							});
-					} else {
-						done(null, {
-							userId: dbRes.id
 						});
-					}
-				});
-		}
-	)
+				} else {
+					done(null, {
+						userId: dbRes.id
+					});
+				}
+			});
+	})
 );
 
 passport.serializeUser((user, done) => {
@@ -115,10 +113,10 @@ passport.deserializeUser((user, done) => {
 	done(null, user);
 });
 
-app.use('/api/login', authRoutes);
+app.use(`/api${process.env.REACT_APP_NGINX_LOCATION}/login`, authRoutes);
 
 app.use(
-	'/api/user/:userId', [middleware.wanAuthed, middleware.wanCheckUser],
+	`/api${process.env.REACT_APP_NGINX_LOCATION}/user/:userId`, [middleware.wanAuthed, middleware.wanCheckUser],
 	userRoutes
 );
 
@@ -139,9 +137,9 @@ app.set(
 	)
 );
 
-app.use(server.static(path.join(__dirname, '../../build/Client')));
+app.use(`${process.env.PUBLIC_URL}/`, server.static(path.join(__dirname, '../../build/Client')));
 
-app.get('*', (req, res) => {
+app.get(`${process.env.PUBLIC_URL}/*`, (req, res) => {
 	res.sendFile(path.join(__dirname, '../../build/Client/index.html'));
 });
 

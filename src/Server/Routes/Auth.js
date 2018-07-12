@@ -9,6 +9,8 @@ import middleware from '../Middleware';
 
 const router = express();
 
+require('dotenv-expand')(require('dotenv').config());
+
 const {
 	CLIENT_HOME
 } = process.env
@@ -16,7 +18,7 @@ const {
 router.get('/', passport.authenticate('auth0', {
 	connection: 'google-oauth2'
 }));
-
+console.log(CLIENT_HOME, process.env.PUBLIC_URL)
 router.get('/callback', passport.authenticate('auth0', {
 	successRedirect: CLIENT_HOME,
 	failureRedirect: '/login',

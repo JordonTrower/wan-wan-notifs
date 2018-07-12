@@ -4,7 +4,7 @@ export default {
 		if (req.user) {
 			next();
 		} else {
-			res.status(401).send(`${process.env.REACT_APP_API_HOME}login`);
+			res.status(401).send(`${process.env.REACT_APP_API_HOME}/login`);
 		}
 	},
 
@@ -12,7 +12,7 @@ export default {
 		if (req.user.userId === Number(req.params.userId)) {
 			next();
 		} else if (req.params.userId === 'not-logged') {
-			res.status(401).send(`${process.env.REACT_APP_API_HOME}login`);
+			res.status(401).send(`${process.env.REACT_APP_API_HOME}/login`);
 		} else {
 			res.status(401).send(`${process.env.CLIENT_HOME}`)
 		}

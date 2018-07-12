@@ -10,6 +10,7 @@ const appDirectory = fs.realpathSync(process.cwd());
 const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 
 const envPublicUrl = process.env.PUBLIC_URL;
+const envServedUrl = process.env.SERVED_URL;
 
 function ensureSlash(path, needsSlash) {
 	const hasSlash = path.endsWith('/');
@@ -34,7 +35,7 @@ const getPublicUrl = appPackageJson =>
 function getServedPath(appPackageJson) {
 	const publicUrl = getPublicUrl(appPackageJson);
 	const servedUrl =
-		envPublicUrl || (publicUrl ? url.parse(publicUrl).pathname : '/');
+		envServedUrl || envPublicUrl || (publicUrl ? url.parse(publicUrl).pathname : '/');
 	return ensureSlash(servedUrl, true);
 }
 
