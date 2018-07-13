@@ -1,6 +1,6 @@
 import axios from 'axios';
 import _ from 'lodash';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
 const initalState = {
 	user: {},
@@ -10,7 +10,7 @@ const initalState = {
 
 const GET_USER_INFO = 'GET_USER_INFO';
 const GET_USER_SITES = 'GET_USER_SITES'
-const GET_SOCKET_CONNECTION = 'GET_SOCKET_CONNETION'
+// const GET_SOCKET_CONNECTION = 'GET_SOCKET_CONNETION'
 
 export function getUserInfo() {
 	const userInfo = axios.get(`${process.env.REACT_APP_API_HOME}/login/is-logged-in`).then(res => {
