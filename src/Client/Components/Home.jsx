@@ -27,7 +27,7 @@ const SubText = styled.p`
 	color: #282f44;
 	font-size: 18px;
 `;
-console.log(process.env.REACT_APP_API_HOME);
+
 const Home = () => (
 	<div>
 		<Header>

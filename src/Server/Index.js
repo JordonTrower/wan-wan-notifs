@@ -113,10 +113,10 @@ passport.deserializeUser((user, done) => {
 	done(null, user);
 });
 
-app.use(`/api${process.env.REACT_APP_NGINX_LOCATION}/login`, authRoutes);
+app.use(`${process.env.REACT_APP_NGINX_LOCATION}/api/login`, authRoutes);
 
 app.use(
-	`/api${process.env.REACT_APP_NGINX_LOCATION}/user/:userId`, [middleware.wanAuthed, middleware.wanCheckUser],
+	`${process.env.REACT_APP_NGINX_LOCATION}/api/user/:userId`, [middleware.wanAuthed, middleware.wanCheckUser],
 	userRoutes
 );
 
