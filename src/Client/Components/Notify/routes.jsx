@@ -8,7 +8,7 @@ import Header from '../Common/Header';
 import Sidebar from '../Common/Sidebar';
 import Dashboard from './Dashboard';
 import ModifyUser from './User/Modify';
-import { getUserSites, getSocketConnection } from '../../Redux/reducer';
+import { getUserSites } from '../../Redux/reducer';
 
 class Routes extends Component {
 	constructor() {
@@ -40,9 +40,9 @@ class Routes extends Component {
 					}
 				})
 				.then(() => {
-					if (_.isEmpty(this.props.socket)) {
-						this.props.getSocketConnection(this.props.user.id);
-					}
+					// if (_.isEmpty(this.props.socket)) {
+					// 	this.props.getSocketConnection(this.props.user.id);
+					// }
 				});
 		}
 	}

@@ -48,17 +48,17 @@ export function getUserSites(userId) {
 	}
 }
 
-export function getSocketConnection(userId) {
-	const s = io(process.env.REACT_APP_API_HOME, {
-		query: `user=${userId}`
-	});
+// export function getSocketConnection(userId) {
+// 	const s = io(process.env.REACT_APP_API_HOME, {
+// 		query: `user=${userId}`
+// 	});
 
-	return {
-		type: GET_SOCKET_CONNECTION,
-		payload: s
-	}
+// 	return {
+// 		type: GET_SOCKET_CONNECTION,
+// 		payload: s
+// 	}
 
-}
+// }
 
 export default function reducer(state = initalState, action) {
 	switch (action.type) {
@@ -71,10 +71,10 @@ export default function reducer(state = initalState, action) {
 			return Object.assign({}, state, {
 				sites: action.payload
 			})
-		case GET_SOCKET_CONNECTION:
-			return Object.assign({}, state, {
-				socket: action.payload
-			})
+			// case GET_SOCKET_CONNECTION:
+			// 	return Object.assign({}, state, {
+			// 		socket: action.payload
+			// 	})
 		default:
 			return state;
 	}
