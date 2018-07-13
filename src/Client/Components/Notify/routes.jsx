@@ -138,16 +138,12 @@ Routes.propTypes = {
 		id: propTypes.number,
 		picture: propTypes.string
 	}).isRequired,
-	socket: propTypes.shape({}).isRequired,
 	sites: propTypes.arrayOf(propTypes.string).isRequired,
-	getUserSites: propTypes.func.isRequired,
-	getSocketConnection: propTypes.func.isRequired
+	getUserSites: propTypes.func.isRequired
 };
 
 function mapStateToProps(state) {
 	return state;
 }
 
-export default connect(mapStateToProps, { getUserSites, getSocketConnection })(
-	Routes
-);
+export default connect(mapStateToProps, { getUserSites })(Routes);
